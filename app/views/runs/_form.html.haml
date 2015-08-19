@@ -1,0 +1,36 @@
+= form_for @run do |f|
+  - if @run.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@run.errors.count, "error")} prohibited this run from being saved:"
+      %ul
+        - @run.errors.full_messages.each do |msg|
+          %li= msg
+
+  .field
+    = f.label :name
+    = f.text_field :name, id: "survey_label"
+    %p.indent [Month survey is run]_[Year survey is run] Example: "AUGUST_2015"
+    %br
+  .field
+    = f.label :month
+    = f.text_field :month, id: "month_label"
+    %br
+  .field
+    = f.label :year
+    = f.text_field :year, id: "year_label"
+    %br
+  .field
+    = f.label :quarter
+    = f.text_field :quarter
+    %p.indent Reporting Quarter for Survey. Example: Quarter 1
+  .field
+    = f.label :start_date
+    = f.text_field :start_date, id: "start_date"
+  .field
+    = f.label :end_date
+    = f.text_field :end_date, id: "end_date"
+
+  %br
+  %br
+  .actions
+    = f.submit 'Save'

@@ -1,0 +1,66 @@
+%h4
+	Top 5 Practices (by Overall NPS)
+%br
+%table
+	%tr
+		%td.header
+			Practice
+		%td.header
+			NPS Index - Products
+		%td.header
+			NPS Index - Exams
+		%td.n3.header
+			NPS Index - Overall
+		%td.header
+			Responses
+		%td.header
+			Response Rate
+	-@top_practice_data.each do |pData|
+		%tr
+			%td
+				=Clinic.where(:practice_id=>pData.practice_id).first.name
+			%td
+				=(pData.n1*100).round(2).to_s + "%"
+			%td
+				=(pData.n2*100).round(2).to_s + "%"
+			%td.n3
+				=(pData.n3*100).round(2).to_s + "%"
+			%td
+				=pData.responses	
+			%td
+				=(pData.response_rate*100).round(2).to_s + "%"
+%p Note: practices on this list must have accumulated +100 responses
+%br
+%h4
+	Bottom 5 Practices (by Overall NPS)
+%br
+%table
+	%tr
+		%td.header
+			Practice
+		%td.header
+			NPS Index - Products
+		%td.header
+			NPS Index - Exams
+		%td.n3.header
+			NPS Index - Overall
+		%td.header
+			Responses
+		%td.header
+			Response Rate
+
+	-@bottom_practice_data.each do |pData|
+		%tr
+			%td
+				=Clinic.where(:practice_id=>pData.practice_id).first.name
+			%td
+				=(pData.n1*100).round(2).to_s + "%"
+			%td
+				=(pData.n2*100).round(2).to_s + "%"
+			%td.n3
+				=(pData.n3*100).round(2).to_s + "%"
+			%td
+				=pData.responses	
+			%td
+				=(pData.response_rate*100).round(2).to_s + "%"
+%p Note: practices on this list must have accumulated +100 responses														

@@ -1,0 +1,16 @@
+%h1 New patient
+
+=form_for @patient, :html=> {:multipart=>true} do |f|
+	= f.label :file
+	%br
+	= f.file_field :file
+	%br
+	Run: 
+	= f.select :run, @runs.map{|m| [m.name, m.id]}, :selected => params[:run]
+	%br
+	Create in Fluid
+	= check_box_tag 'fluid'
+	%br
+	%br
+	= f.submit "Upload" 
+= link_to 'Back', patients_path

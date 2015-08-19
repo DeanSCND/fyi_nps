@@ -1,0 +1,53 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user_id: 1
+  status: MyString
+  fid: 1
+  created: MyString
+  ip: MyString
+  location: MyString
+  nps: 1
+  run: MyString
+  collector: MyString
+  a1: false
+  a2: false
+  a3: false
+  a4: false
+  a5: false
+  a6comment: MyString
+  posfeedback: MyString
+  b1: false
+  b2: false
+  b3: false
+  b4: false
+  b5: false
+  b6comment: MyString
+  contact: false
+  negfeedback: MyString
+
+two:
+  user_id: 1
+  status: MyString
+  fid: 1
+  created: MyString
+  ip: MyString
+  location: MyString
+  nps: 1
+  run: MyString
+  collector: MyString
+  a1: false
+  a2: false
+  a3: false
+  a4: false
+  a5: false
+  a6comment: MyString
+  posfeedback: MyString
+  b1: false
+  b2: false
+  b3: false
+  b4: false
+  b5: false
+  b6comment: MyString
+  contact: false
+  negfeedback: MyString

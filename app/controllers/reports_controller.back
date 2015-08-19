@@ -1,0 +1,80 @@
+class ReportsController < ApplicationController
+  require 'fileutils'
+    def index
+    if params[:run_id] != nil
+      @run = Run.where(:id => params[:run_id]).first
+      
+      @type = params[:type]
+      @title = ""
+      
+      logger.debug("TYPE IS: " + @type)
+      if @type == "clinics"
+        @title = "Results by Clinic"
+        logger.debug("IN CLINIC SECTION")
+        logger.debug("RUN: " + @run.id.to_s)
+        @clinics = Clinic.all
+        
+      elsif @type == "groups"
+        @title = "Results by Clinic Groups"
+
+        @groups = PracticeGroup.all
+        
+      elsif @type == "both"
+        @title = "Results by Clinic & Clinic Groups"
+        @clinics = Clinic.where(:practice_group_id=>nil)
+        @groups = PracticeGroup.all
+
+      end
+      
+    end
+  end
+  
+  def index
+    if params[:run] != nil
+      run_name = params[:run]
+      run = Run.where(:name => run_name).first
+      
+      SurveyResult.select("DISTINCT(practice_id)").where(:run => run).each do |result|
+        clinic = Clinic.where(:practice_id=>result.practice_id).first
+        logger.debug("Generating report for : " + clinic.name)
+
+        #my_html = '<html><head></head><body><p>Hello</p></body></html>'
+        invites = Patient.where(:run_id=>run.id, :practice_id=>clinic.practice_id).count
+        @results = SurveyResult.where(:run_id=>run.id, :practice_id => clinic.practice_id, :status=>"Complete")
+        data = render_to_string( :partial => "reports/nps", :locals => {
+          :clinic => clinic, 
+          :results => @results,
+          :invites => invites, 
+          :run=>run
+        })
+        
+        #:action => :show,  :id => result.practice_id.to_s, :run=>run )
+        FileUtils.mkdir_p("/Users/dean/Documents/work/FYI/Net Promoter Score/reports/" + run.name)
+        reportFile = "/Users/dean/Documents/work/FYI/Net Promoter Score/reports/" + run.name + "/report_" + clinic.practice_id.to_s + ".doc"
+        File.open(reportFile, "w"){|f| f << data}
+        
+      end
+    end
+  end
+  
+  def show
+    logger.debug("IN SHOW: " + params.to_s)
+    run_name = params[:run]
+    clinic = params[:id]
+    @run = Run.where(:name => run_name).first
+    
+    logger.debug("RUN: " + @run.id.to_s)
+    @clinic = Clinic.where(:practice_id=>clinic).first
+    @invites = Patient.where(:run_id=>@run.id, :practice_id=>@clinic.practice_id)
+    
+    #@results = SurveyResult.where(:run_id=>@run.id, :practice_id => @clinic.practice_id, :status=>"Complete")
+    @results = SurveyAnswer.where(:run_id=>@run.id, :practice_id => @clinic.practice_id, :status=>"Complete")
+    
+    @nps1 = (((@results.all(:conditions => "n1>8").count.to_f / @results.count.to_f) * 100) - ((@results.all(:conditions => "n1<7").count.to_f / @results.count.to_f) * 100)).round(2)
+		@nps2 = (((@results.all(:conditions => "n2>8").count.to_f / @results.count.to_f) * 100) - ((@results.all(:conditions => "n2<7").count.to_f / @results.count.to_f) * 100)).round(2)
+		@nps3 = (((@results.all(:conditions => "n3>8").count.to_f / @results.count.to_f) * 100) - ((@results.all(:conditions => "n3<7").count.to_f / @results.count.to_f) * 100)).round(2)
+		
+		
+    logger.debug("FOUND: " + @results.count.to_s)
+  end
+end

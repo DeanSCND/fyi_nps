@@ -1,0 +1,9 @@
+%p#notice= notice
+
+%p
+  %b Name:
+  = @practice_group.name
+
+= link_to 'Edit', edit_practice_group_path(@practice_group)
+\|
+= link_to 'Back', practice_groups_path

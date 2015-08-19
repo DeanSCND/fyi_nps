@@ -1,0 +1,27 @@
+%h2
+	Draw Winners
+%br
+%table.standard-table
+	%tr
+		%td.bold
+			Name
+		%td.bold
+			Email
+		%td.bold
+			Practice
+		%td.bold
+			Practice Id
+		%td.bold
+			Run Id
+	-@winners.each do |winner|
+		%tr
+			%td
+				=winner.patient.name
+			%td
+				=winner.patient.email
+			%td
+				=winner.clinic.name
+			%td
+				=winner.clinic.practice_id
+			%td
+				=winner.run_id

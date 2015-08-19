@@ -1,0 +1,45 @@
+%table
+	%tr
+		%td.header
+			Id
+		%td.header
+			Practice
+		%td.header
+			Quarter
+		%td.header
+			NPS Index - Products
+		%td.header
+			NPS Index - Exams
+		%td.n3.header
+			NPS Index - Overall
+		%td.header
+			Responses
+		%td.header
+			Response Rate
+	-practice_id = 0
+	-color = '#ffffff'
+	-pResults.each do |res|
+		-if res.practice_id != practice_id
+			-if color == 'light'
+				-color = 'dark'
+			-else
+				-color = 'light'
+			-practice_id = res.practice_id
+		%tr{:class=>color}
+			%td
+				=res.practice_id
+			%td
+				=res.name
+			%td
+				Quarter 2, 2015
+			%td
+				=(res.n1*100).round(2).to_s + "%"
+			%td
+				=(res.n2*100).round(2).to_s + "%"
+			%td.n3
+				=(res.n3*100).round(2).to_s + "%"
+			%td
+				=res.responses	
+			%td
+				=(res.response_rate*100).round(2).to_s + "%"
+

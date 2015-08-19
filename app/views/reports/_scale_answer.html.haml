@@ -1,0 +1,8 @@
+%tr
+	%td{:style=>"width: 200px; padding-left: 5px; padding-right: 5px;"}
+		Answered  with a score of #{answerVal}:
+	%td{:style=>"padding-right: 5px; padding-left: 5px;"}
+		= ((scoreCount/total)*100).round(2).to_s + "%" 
+	%td{:style=>"padding-right: 5px; padding-left: 5px;"}
+		.answer-bar{:style=>"display: inline-block;width: #{10+((scoreCount/total))*500}px; border: 1px solid blue"}
+			=scoreCount.round(0).to_s

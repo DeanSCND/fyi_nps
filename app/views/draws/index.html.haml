@@ -1,0 +1,53 @@
+%h1.loading-message 
+	Loading patients for draw ... Please Wait.
+%h3.loading-message 
+	Be bloody patient!
+
+#draw-area{:style=>"width: 100%; height: 100%; text-align: center;"}
+	%h1
+		%br
+		%br
+		#winner{:style=>"color: green"}
+			%h1
+				The winner is!
+		#name-display
+
+	%br
+	%br
+	%br
+	#instruct
+		%h1
+			Instructions
+		%h3
+			Grab a witness so we are all official. 
+		%h3
+			When you have your witness, close your eyes and press any key on the key board when ready. Then open them back up.
+		%h4 Don't forget to open them back up.
+
+#result
+
+
+#signature
+	%h3 Please type your name and the witnesses name and click finalize and we are all done.
+	%h4 You must click Finalize for this winner to be recorded.
+	%br
+	%table
+		%tr
+	=form_for @winner do |f|
+		%td
+			=f.label :name
+		%td
+			=f.text_field :name
+		%td
+			=f.label :witness
+		%td
+			=f.text_field :witness
+		%br
+		=f.hidden_field :patient_id
+		=f.hidden_field :run_id
+		=f.hidden_field :practice_id
+		%br
+		%br
+		=f.submit "Finalize", :class=>"btn btn-primary"
+
+= javascript_include_tag "/assets/contest/draw", "data-turbolinks-track" => true

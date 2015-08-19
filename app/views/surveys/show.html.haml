@@ -1,0 +1,18 @@
+%p#notice= notice
+
+%p
+  %b Run:
+  = @survey.run
+%p
+  %b Count:
+  = @survey.count
+%p
+  %b Month:
+  = @survey.month
+%p
+  %b Status:
+  = @survey.status
+
+= link_to 'Edit', edit_survey_path(@survey)
+\|
+= link_to 'Back', surveys_path

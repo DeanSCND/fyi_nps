@@ -1,0 +1,82 @@
+= form_for @survey_result do |f|
+  - if @survey_result.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@survey_result.errors.count, "error")} prohibited this survey_result from being saved:"
+      %ul
+        - @survey_result.errors.full_messages.each do |msg|
+          %li= msg
+
+  .field
+    = f.label :user_id
+    = f.number_field :user_id
+  .field
+    = f.label :status
+    = f.text_field :status
+  .field
+    = f.label :fid
+    = f.number_field :fid
+  .field
+    = f.label :created
+    = f.text_field :created
+  .field
+    = f.label :ip
+    = f.text_field :ip
+  .field
+    = f.label :location
+    = f.text_field :location
+  .field
+    = f.label :nps
+    = f.number_field :nps
+  .field
+    = f.label :run
+    = f.text_field :run
+  .field
+    = f.label :collector
+    = f.text_field :collector
+  .field
+    = f.label :a1
+    = f.check_box :a1
+  .field
+    = f.label :a2
+    = f.check_box :a2
+  .field
+    = f.label :a3
+    = f.check_box :a3
+  .field
+    = f.label :a4
+    = f.check_box :a4
+  .field
+    = f.label :a5
+    = f.check_box :a5
+  .field
+    = f.label :a6comment
+    = f.text_field :a6comment
+  .field
+    = f.label :posfeedback
+    = f.text_field :posfeedback
+  .field
+    = f.label :b1
+    = f.check_box :b1
+  .field
+    = f.label :b2
+    = f.check_box :b2
+  .field
+    = f.label :b3
+    = f.check_box :b3
+  .field
+    = f.label :b4
+    = f.check_box :b4
+  .field
+    = f.label :b5
+    = f.check_box :b5
+  .field
+    = f.label :b6comment
+    = f.text_field :b6comment
+  .field
+    = f.label :contact
+    = f.check_box :contact
+  .field
+    = f.label :negfeedback
+    = f.text_field :negfeedback
+  .actions
+    = f.submit 'Save'

@@ -1,0 +1,24 @@
+%p#notice= notice
+
+%p
+  %b Name:
+  = @run.name
+%p
+  %b Month:
+  = @run.month
+%p
+  %b Year:
+  = @run.year
+%p
+  %b Quarter:
+  = @run.quarter
+%p
+  %b Start Date:
+  = @run.start_date
+%p
+  %b End Date:
+  = @run.end_date
+
+= link_to 'Edit', edit_run_path(@run)
+\|
+= link_to 'Back', runs_path

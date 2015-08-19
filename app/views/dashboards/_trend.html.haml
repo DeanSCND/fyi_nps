@@ -1,0 +1,66 @@
+%h4 #{title}
+%p #{sub_title}
+%br
+%table
+	%tr
+		%td.header
+			Survey Run - time period covered
+		%td.header
+			NPS - Products
+		%td.header
+			NPS - Exams
+		%td.header
+			NPS - Overall
+		%td.header
+			Response Rate&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+	-i = 0
+	-trend_data.each do |tdata|
+		%tr
+			%td
+				= @start_run.start_date + ' to ' + Run.find(tdata.run_id).end_date
+			%td
+				=(tdata.n1*100).round(2).to_s + "%"
+				-if i>0
+					- if(tdata.n1 > trend_data[i-1].n1)
+						%div.upIndicator
+							Up
+							= ((tdata.n1 - trend_data[i-1].n1)*100).round(2)
+					-elsif(tdata.n1 < trend_data[i-1].n1)
+						%div.downIndicator
+							Down
+							= ((tdata.n1 - trend_data[i-1].n1)*100).round(2)
+			%td
+				=(tdata.n2*100).round(2).to_s + "%"
+				-if i>0
+					- if(tdata.n2 > trend_data[i-1].n2)
+						%div.upIndicator
+							Up
+							= ((tdata.n2 - trend_data[i-1].n2)*100).round(2)
+					-elsif(tdata.n2 < trend_data[i-1].n2)
+						%div.downIndicator
+							Down
+							= ((tdata.n2 - trend_data[i-1].n2)*100).round(2)
+			%td
+				=(tdata.n3*100).round(2).to_s + "%"
+				-if i>0
+					- if(tdata.n3 > trend_data[i-1].n3)
+						%div.upIndicator
+							Up
+							= ((tdata.n3 - trend_data[i-1].n3)*100).round(2)
+					-elsif(tdata.n3 < trend_data[i-1].n3)
+						%div.downIndicator
+							Down
+							= ((tdata.n3 - trend_data[i-1].n3)*100).round(2)
+			%td
+				=(tdata.response_rate*100).round(2).to_s + "%"
+				-if i>0
+					- if(tdata.response_rate > trend_data[i-1].response_rate)
+						%div.upIndicator
+							Up
+							= ((tdata.response_rate - trend_data[i-1].response_rate)*100).round(2)
+					-elsif(tdata.response_rate < trend_data[i-1].response_rate)
+						%div.downIndicator
+							Down
+							= ((tdata.response_rate - trend_data[i-1].response_rate)*100).round(2)
+
+		-i=i+1

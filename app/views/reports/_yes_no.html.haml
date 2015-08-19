@@ -1,0 +1,37 @@
+%h2
+	Were you updated by on a regular basis by the staff member(s) on your expected wait time?
+
+%br
+%h3
+	Score Breakdown
+%br
+%table.breakdown{:border=>1}
+	%tr
+		%td{:style=>"width: 120px;padding-left: 5px; padding-right: 5px;"}
+			Answered Yes:
+		%td{:style=>"padding-left: 5px; padding-right: 5px;"}
+			- yes = results.where(:b2=>'Yes')
+			= ((yes.count.to_f/results.count.to_f)*100).round(2).to_s + "%" 
+		%td{:style=>"padding-left: 5px; padding-right: 5px;"}
+			.answer-bar{:style=>"display: inline-block;width: #{10+((yes.count.to_f/results.count.to_f))*500}px; border: 1px solid blue"}
+				=yes.count.round(0).to_s
+	%tr
+		%td{:style=>"width: 120px;padding-left: 5px; padding-right: 5px;"}
+			Answered No:
+		%td{:style=>"padding-left: 5px; padding-right: 5px;"}
+			- no = results.where(:b2=>'No')
+			= ((no.count.to_f/results.count.to_f)*100).round(2).to_s + "%" 
+		%td{:style=>"padding-left: 5px; padding-right: 5px;"}
+			.answer-bar{:style=>"display: inline-block;width: #{10+((no.count.to_f/results.count.to_f))*500}px; border: 1px solid blue"}
+				=no.count.round(0).to_s
+	- na = results.where(:b2=>'')
+	- if na.count > 0
+		%tr
+			%td{:style=>"width: 120px;"}
+				Answered N/A:
+			%td
+				= ((na.count.to_f/results.count.to_f)*100).round(2).to_s + "%" 
+			%td
+				.answer-bar{:style=>"display: inline-block;width: #{10+((na.count.to_f/results.count.to_f))*500}px; border: 1px solid blue"}
+					=na.count.round(0).to_s
+

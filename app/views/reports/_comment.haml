@@ -1,0 +1,13 @@
+%tr
+	%td{:style=>"padding-left: 70px;"}
+		= comment
+%tr
+	%td{:style=>"width: 100%; padding-left: 100px; padding-bottom: 5px;#{(answer!=nil&&answer<7) ? 'background-color: red; color: white' : ''}"}
+		-if answer != nil && answer < 7
+			%p{:style=>"font-size: 10px; padding-left: 80px; font-weight: bold"} 
+		-else
+			%p{:style=>"font-size: 10px; padding-left: 80px; font-weight: bold;"} 
+		-if anonymous != true
+			= " - " + name + " - " + email + " ( " + scoreLabel + ": " + (answer==nil ? "NA" : answer.to_s) + " )"
+		-else
+			= " -  ( " + scoreLabel + ": " + answer.to_s + " )"

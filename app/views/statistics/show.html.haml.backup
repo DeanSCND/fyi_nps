@@ -1,0 +1,149 @@
+%table
+	%tr
+		%td
+			ID
+		%td
+			Clinic
+		%td
+			Invitations
+		%td
+			Responses
+		%td
+			Response %age
+		%td
+			NPS1
+		%td
+			NPS2
+		%td
+			NPS3
+		%td
+			NPS Avg
+		%td
+			Q1 Avg
+		%td
+			Q2 Avg
+		%td
+			Q2 Yes %
+		%td
+			Q2 No %			
+		%td
+			Q3 Avg
+		%td
+			Q4 Avg
+		%td
+			Q5 Avg
+		%td
+			Q6 Avg
+		%td
+			Q7 Avg
+		%td
+			Q8 Avg
+	
+
+	%tr
+		%td
+			N/A
+		%td
+			FYI Doctors (all)
+		- if @all == true
+			-results = SurveyAnswer.where(:status=>"Complete")
+			-invites = Patient.all		
+		- else
+			-results = SurveyAnswer.where(:run_id=>@run.id, :status=>"Complete")
+			-invites = Patient.where(:run_id=>@run.id)
+
+		- sums = results.select("sum(a1) as a1, sum(a2) as a2, sum(a3) as a3, sum(a4) as a4, sum(a5) as a5, sum(a6) as a6, sum(a7) as a7, sum(a8) as a8")	
+		-nps1 = (((results.all(:conditions => "n1>8").count.to_f / results.all(:conditions => "n1 >= 0").count.to_f) * 100) - ((results.all(:conditions => "n1<7").count.to_f / results.all(:conditions => "n1 >= 0").count.to_f) * 100)).round(2)
+		-nps2 = (((results.all(:conditions => "n2>8").count.to_f / results.all(:conditions => "n2 >= 0").count.to_f) * 100) - ((results.all(:conditions => "n2<7").count.to_f / results.count.to_f) * 100)).round(2)
+		-nps3 = (((results.all(:conditions => "n3>8").count.to_f / results.all(:conditions => "n3 >= 0").count.to_f) * 100) - ((results.all(:conditions => "n3<7").count.to_f / results.all(:conditions => "n3 >= 0").count.to_f) * 100)).round(2)
+		- yes = results.where(:b2=>'Yes')
+		- no = results.where(:b2=>'No')
+		
+		%td
+			=invites.count
+		%td
+			=results.count.to_s
+		%td
+			=((results.count.to_f/invites.count.to_f)*100).round(2).to_s + "%"
+		%td
+			=nps1.to_s + "%"
+		%td
+			=nps2.to_s + "%"
+		%td
+			=nps3.to_s + "%"
+		%td 
+			=((nps1 + nps2 + nps3)/3).round(2).to_s + "%"
+		%td
+			=(sums[0][:a1].to_f/results.count.to_f).round(2)
+		%td
+			=(sums[0][:a2].to_f/results.count.to_f).round(2)
+		%td
+			=((yes.count.to_f/results.count.to_f)*100).round(2)
+		%td
+			=((no.count.to_f/results.count.to_f)*100).round(2)
+		%td
+			=(sums[0][:a3].to_f/(results.count.to_f - results.where(:a3=>nil).count.to_f)).round(2)
+		%td
+			=(sums[0][:a4].to_f/(results.count.to_f - results.where(:a4=>nil).count.to_f)).round(2)
+		%td
+			=(sums[0][:a5].to_f/(results.count.to_f - results.where(:a5=>nil).count.to_f)).round(2)
+		%td
+			=(sums[0][:a6].to_f/(results.count.to_f - results.where(:a6=>nil).count.to_f)).round(2)
+		%td
+			=(sums[0][:a7].to_f/(results.count.to_f - results.where(:a7=>nil).count.to_f)).round(2)
+		%td
+			=(sums[0][:a8].to_f/(results.count.to_f - results.where(:a8=>nil).count.to_f)).round(2)
+	
+	
+	- @clinics.each do |clinic|
+		%tr
+			%td
+				=clinic.practice_id
+			%td
+				=clinic.name
+			- if @all == true
+				-results = SurveyAnswer.where(:practice_id => clinic.practice_id, :status=>"Complete")
+				-invites = Patient.where(:practice_id=>clinic.practice_id)
+			- else
+				-results = SurveyAnswer.where(:run_id=>@run.id, :practice_id => clinic.practice_id, :status=>"Complete")
+				-invites = Patient.where(:run_id=>@run.id, :practice_id=>clinic.practice_id)
+			- sums = results.select("sum(a1) as a1, sum(a2) as a2, sum(a3) as a3, sum(a4) as a4, sum(a5) as a5, sum(a6) as a6, sum(a7) as a7, sum(a8) as a8")	
+			-nps1 = (((results.all(:conditions => "n1>8").count.to_f / results.all(:conditions => "n1 >= 0").count.to_f) * 100) - ((results.all(:conditions => "n1<7").count.to_f / results.all(:conditions => "n1 >= 0").count.to_f) * 100)).round(2)
+			-nps2 = (((results.all(:conditions => "n2>8").count.to_f / results.all(:conditions => "n2 >= 0").count.to_f) * 100) - ((results.all(:conditions => "n2<7").count.to_f / results.all(:conditions => "n2 >= 0").count.to_f) * 100)).round(2)
+			-nps3 = (((results.all(:conditions => "n3>8").count.to_f / results.all(:conditions => "n3 >= 0").count.to_f) * 100) - ((results.all(:conditions => "n3<7").count.to_f / results.all(:conditions => "n3 >= 0").count.to_f) * 100)).round(2)
+			- yes = results.where(:b2=>'Yes')
+			- no = results.where(:b2=>'No')
+			%td
+				=invites.count
+			%td
+				=results.count.to_s
+			%td
+				=((results.count.to_f/invites.count.to_f)*100).round(2).to_s + "%"
+			%td
+				=nps1.to_s + "%"
+			%td
+				=nps2.to_s + "%"
+			%td
+				=nps3.to_s + "%"
+			%td 
+				=((nps1 + nps2 + nps3)/3).round(2).to_s + "%"
+			%td
+				=(sums[0][:a1].to_f/results.count.to_f).round(2)
+			%td
+				=(sums[0][:a2].to_f/results.count.to_f).round(2)
+			%td
+				=((yes.count.to_f/results.count.to_f)*100).round(2)
+			%td
+				=((no.count.to_f/results.count.to_f)*100).round(2)				
+			%td
+				=(sums[0][:a3].to_f/(results.count.to_f - results.where(:a3=>nil).count.to_f)).round(2)
+			%td
+				=(sums[0][:a4].to_f/(results.count.to_f - results.where(:a4=>nil).count.to_f)).round(2)
+			%td
+				=(sums[0][:a5].to_f/(results.count.to_f - results.where(:a5=>nil).count.to_f)).round(2)
+			%td
+				=(sums[0][:a6].to_f/(results.count.to_f - results.where(:a6=>nil).count.to_f)).round(2)
+			%td
+				=(sums[0][:a7].to_f/(results.count.to_f - results.where(:a7=>nil).count.to_f)).round(2)
+			%td
+				=(sums[0][:a8].to_f/(results.count.to_f - results.where(:a8=>nil).count.to_f)).round(2)

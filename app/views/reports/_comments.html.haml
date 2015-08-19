@@ -1,0 +1,8 @@
+%h3
+	Comments
+- if comments.count == 0
+	%p{:style=>"padding-left: 70px; font-style: italic"} No comments provided
+
+- comments.each do |comment|
+	%table{:style=>"width: 100%"}
+		= render :partial => 'comment', :locals => {:comment=>comment.c, :name=>comment.patient.name, :email=>comment.patient.email, :answer=>comment.a, :scoreLabel=>scoreLabel, :anonymous=>anonymous}

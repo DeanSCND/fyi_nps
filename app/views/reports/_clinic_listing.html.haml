@@ -1,0 +1,83 @@
+- clinics.each do |clinic|
+	%tr{:id=>"row_" + clinic.id.to_s, :class=>"report-table-row", :data=>{:id=>clinic.id, :url=>run_clinics_report_path(run.id,clinic.id)}}
+		%td
+			= clinic.practice_group_id != nil ? "Group Member" : "Clinic"
+		%td
+			=clinic.name
+		-results = SurveyAnswer.where(:run_id=>run.id, :practice_id => clinic.practice_id, :status=>"Complete")
+		-invites = Patient.where(:run_id=>run.id, :practice_id=>clinic.practice_id)
+
+		- sums = results.select("sum(a1) as a1, sum(a2) as a2, sum(a3) as a3, sum(a4) as a4, sum(a5) as a5, sum(a6) as a6, sum(a7) as a7, sum(a8) as a8")	
+		-nps1 = (((results.all(:conditions => "n1>8").count.to_f / results.count.to_f) * 100) - ((results.all(:conditions => "n1<7").count.to_f / results.count.to_f) * 100)).round(2)
+		-nps2 = (((results.all(:conditions => "n2>8").count.to_f / results.count.to_f) * 100) - ((results.all(:conditions => "n2<7").count.to_f / results.count.to_f) * 100)).round(2)
+		-nps3 = (((results.all(:conditions => "n3>8").count.to_f / results.count.to_f) * 100) - ((results.all(:conditions => "n3<7").count.to_f / results.count.to_f) * 100)).round(2)
+		- yes = results.where(:b2=>'Yes')
+		- no = results.where(:b2=>'No')
+		%td
+			=invites.count.to_s
+		%td
+			=results.count.to_s
+		-responseRate = ((results.count.to_f/invites.count.to_f)*100).round(2).to_s + "%"
+		-allResponseRate = ((all_results.count.to_f/all_invites.count.to_f)*100).round(2).to_s + "%"
+		%td{:class=>responseRate < allResponseRate ? "below-average-cell" : "above-average-cell"}
+			=responseRate
+		%td{:class=>allNps1 < nps1 ? "above-average-cell" : "below-average-cell"}
+			=nps1.to_s + "%"
+		%td{:class=>allNps2 < nps2 ? "above-average-cell" : "below-average-cell"}
+			=nps2.to_s + "%"
+		%td{:class=>allNps3 < nps3 ? "above-average-cell" : "below-average-cell"}
+			=nps3.to_s + "%"
+	
+		-avgNps = ((nps1 + nps2 + nps3)/3).round(2)
+		-allAvgNps = ((allNps1 + allNps2 + allNps3)/3).round(2)
+		%td{:class=>allAvgNps < avgNps ? "above-average-cell" : "below-average-cell"}
+			=avgNps.to_s + "%"
+		
+		-a1=(sums[0][:a1].to_f/results.count.to_f)
+		-allA1=(all_sums[0][:a1].to_f/all_results.count.to_f)
+		%td{:class=>allA1 < a1 ? "above-average-cell" : "below-average-cell"}
+			=a1.round(2)
+			=sums[0][:a1].to_f
+			=results.count.to_f
+	
+		-a2=(sums[0][:a2].to_f/results.count.to_f)
+		-allA2=(all_sums[0][:a2].to_f/all_results.count.to_f)
+		%td{:class=>allA2 < a2 ? "above-average-cell" : "below-average-cell"}
+			=a2.round(2)
+	
+		-yes=((yes.count.to_f/results.count.to_f)*100)
+		-no=((no.count.to_f/results.count.to_f)*100)
+		%td{:class=>all_yes < yes ? "above-average-cell" : "below-average-cell"}
+			=yes.round(2)
+		%td{:class=>all_no < no ? "above-average-cell" : "below-average-cell"}
+			=no.round(2)
+
+		-a3=(sums[0][:a3].to_f/results.count.to_f)
+		-allA3=(all_sums[0][:a3].to_f/all_results.count.to_f)
+		%td{:class=>allA3 < a3 ? "above-average-cell" : "below-average-cell"}
+			=a3.round(2)
+
+		-a4=(sums[0][:a4].to_f/results.count.to_f)
+		-allA4=(all_sums[0][:a4].to_f/all_results.count.to_f)
+		%td{:class=>allA2 < a4 ? "above-average-cell" : "below-average-cell"}
+			=a4.round(2)
+
+		-a5=(sums[0][:a5].to_f/results.count.to_f)
+		-allA5=(all_sums[0][:a5].to_f/all_results.count.to_f)
+		%td{:class=>allA5 < a5 ? "above-average-cell" : "below-average-cell"}
+			=a5.round(2)
+
+		-a6=(sums[0][:a6].to_f/results.count.to_f)
+		-allA6=(all_sums[0][:a6].to_f/all_results.count.to_f)
+		%td{:class=>allA6 < a6 ? "above-average-cell" : "below-average-cell"}
+			=a6.round(2)
+
+		-a7=(sums[0][:a7].to_f/results.count.to_f)
+		-allA7=(all_sums[0][:a7].to_f/all_results.count.to_f)
+		%td{:class=>allA7 < a7 ? "above-average-cell" : "below-average-cell"}
+			=a7.round(2)
+
+		-a8=(sums[0][:a8].to_f/results.count.to_f)
+		-allA8=(all_sums[0][:a8].to_f/all_results.count.to_f)
+		%td{:class=>allA8 < a8 ? "above-average-cell" : "below-average-cell"}
+			=a8.round(2)

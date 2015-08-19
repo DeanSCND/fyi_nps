@@ -1,0 +1,178 @@
+class SurveyResultsController < ApplicationController
+  before_action :set_survey_result, only: [:show, :edit, :update, :destroy]
+  require 'csv'
+
+  # GET /survey_results
+  # GET /survey_results.json
+  def index
+    if params[:run_id] 
+      run_id = params[:run_id].to_i
+    logger.debug("run: " + run_id.to_s)
+    if run_id > 4
+        @survey_results = SurveyAnswer.where(:run_id=>run_id, :status=>"Complete")
+      else
+        @survey_results = SurveyResult.where(:run_id=>run_id, :status=>"Complete")
+      end
+    else
+      @survey_results = SurveyAnswer.all
+    end
+    logger.debug("COUNT: " + @survey_results.length.to_s)
+    respond_to do |format|
+      format.json { render :json => @survey_results.to_json(:include=>:patient) }
+    end
+  end
+
+  # GET /survey_results/1
+  # GET /survey_results/1.json
+  def show
+  end
+
+  # GET /survey_results/new
+  def new
+    @survey_result = SurveyResult.new
+  end
+
+  # GET /survey_results/1/edit
+  def edit
+  end
+
+  # POST /survey_results
+  # POST /survey_results.json
+  def create
+    i = 0
+    run_id = 0
+
+    CSV.parse(params[:survey_result][:file].read, {:headers => true}) do |row|
+      start_of_results = 14
+      @result = SurveyAnswer.new
+      email = row[start_of_results]
+      @patient = Patient.where(:email => email).first
+      if @patient != nil
+        existing = SurveyResult.where(:patient_id => @patient.id).first
+        if existing != nil
+          existing.delete
+        end
+        
+        @result.patient_id = @patient.id
+        @result.practice_id = @patient.practice_id
+        logger.debug("PT: " + @patient.id.to_s  )
+        @result.status = row[0]
+        @result.fid = row[1].to_i
+        #@result.created = 
+        @result.ip = row[5]
+        @result.location = row[6]
+        #@result.nps = row[11].to_i
+        #run = Run.where(:name => row[17]).first
+        #if (run == nil)
+        #  logger.debug("OH SNAP. NO RUN FOR THIS. BAILING")
+        #  break;
+        #end
+        #@result.run = run.name
+        @result.run_id = @patient.run.id
+        run_id = @result.run_id
+        @result.collector = row[start_of_results+6]
+
+        @result.a1 = calculate_score row[start_of_results+7]
+        @result.c1 = clean_comment row[start_of_results+8]
+        @result.a2 = calculate_score row[start_of_results+9]
+        @result.b2 = row[start_of_results+10]
+        @result.a3 = calculate_score row[start_of_results+11]
+        @result.a3o = row[start_of_results+12]
+        @result.c3 = clean_comment row[start_of_results+13]
+        @result.a4 = calculate_score row[start_of_results+14]
+        @result.a4o = row[start_of_results+15]
+        @result.c4 = clean_comment row[start_of_results+16]
+        @result.a5 = calculate_score row[start_of_results+17]
+        @result.a5o = row[start_of_results+18]
+        @result.c5 = clean_comment row[start_of_results+19]
+        @result.a6 = calculate_score row[start_of_results+20]
+        @result.a6o = row[start_of_results+21]
+        @result.c6 = clean_comment row[start_of_results+22]
+        @result.a7 = calculate_score row[start_of_results+23]
+        @result.a7o = row[start_of_results+24]
+        @result.c7 = clean_comment row[start_of_results+25]
+        @result.a8 = calculate_score row[start_of_results+26]
+        @result.a8o = row[start_of_results+27]
+        @result.c8 = clean_comment row[start_of_results+28]
+
+        @result.n1 = calculate_score row[start_of_results+29]
+        @result.n1o = row[start_of_results+30]
+        @result.n2 = calculate_score row[start_of_results+31]
+        @result.n2o = row[start_of_results+32]
+        @result.n3 = calculate_score row[start_of_results+33]
+
+        @result.c9 = clean_comment row[start_of_results+34]
+
+        @result.save
+      end
+      i = i + 1
+    end
+    
+    respond_to do |format|
+      format.html { redirect_to new_run_statistic_path(run_id) }
+      format.json { render action: 'show', status: :created, location: @survey_result }
+    end
+  end
+
+  # PATCH/PUT /survey_results/1
+  # PATCH/PUT /survey_results/1.json
+  def update
+    respond_to do |format|
+      if @survey_result.update(survey_result_params)
+        format.html { redirect_to @survey_result, notice: 'Survey result was successfully updated.' }
+        format.json { head :no_content }
+      else
+        format.html { render action: 'edit' }
+        format.json { render json: @survey_result.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  # DELETE /survey_results/1
+  # DELETE /survey_results/1.json
+  def destroy
+    @survey_result.destroy
+    respond_to do |format|
+      format.html { redirect_to survey_results_url }
+      format.json { head :no_content }
+    end
+  end
+
+  private
+    # Use callbacks to share common setup or constraints between actions.
+    def set_survey_result
+      @survey_result = SurveyResult.find(params[:id])
+    end
+
+    # Never trust parameters from the scary internet, only allow the white list through.
+    def survey_result_params
+      params.require(:survey_result).permit(:patient_id, :status, :fid, :created, :ip, :location, :nps, :run, :collector, :a1, :a2, :a3, :a4, :a5, :a6comment, :posfeedback, :b1, :b2, :b3, :b4, :b5, :b6comment, :contact, :negfeedback)
+    end
+    
+    def calculate_score(answer)
+      
+      if answer == nil
+        return nil
+      elsif answer.include? '10'
+        return 10
+      elsif answer.include? '5'
+        return 5
+      elsif answer.start_with?('0')
+        return 0
+      else
+        if answer =~ /\A[-+]?[0-9]*\.?[0-9]+\Z/
+          return answer.to_i
+        else
+          return nil
+        end
+      end
+    end
+    
+    def clean_comment(answer)
+      if answer != nil
+        return answer.encode('UTF-8', :invalid => :replace, :undef => :replace)
+      else
+        return answer
+      end
+    end
+end

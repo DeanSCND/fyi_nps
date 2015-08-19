@@ -1,0 +1,19 @@
+%h1 Listing practice_groups
+
+%table
+  %tr
+    %th Name
+    %th
+    %th
+    %th
+
+  - @practice_groups.each do |practice_group|
+    %tr
+      %td= practice_group.name
+      %td= link_to 'Show', practice_group
+      %td= link_to 'Edit', edit_practice_group_path(practice_group)
+      %td= link_to 'Destroy', practice_group, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Practice group', new_practice_group_path

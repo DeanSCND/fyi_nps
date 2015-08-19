@@ -1,0 +1,21 @@
+%p#notice= notice
+
+%p
+  %b Name:
+  = @patient.name
+%p
+  %b Email:
+  = @patient.email
+%p
+  %b Practiceid:
+  = @patient.practice_id
+%p
+  %b Practicename:
+  = @patient.clinic.name
+%p
+  %b Visitdate:
+  = @patient.visitDate
+
+= link_to 'Edit', edit_patient_path(@patient)
+\|
+= link_to 'Back', patients_path

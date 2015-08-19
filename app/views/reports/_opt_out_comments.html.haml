@@ -1,0 +1,7 @@
+%h3
+	Comments from those who opted out of question (this is an optional response)
+- if comments.count == 0
+	%p{:style=>"padding-left: 70px; font-style: italic"} No comments provided
+- comments.each do |comment|
+	%table
+		= render :partial => 'comment', :locals => {:comment=>comment.c, :name=>comment.patient.name, :email=>comment.patient.email, :answer=>comment.a, :scoreLabel=>scoreLabel, :anonymous=>anonymous}

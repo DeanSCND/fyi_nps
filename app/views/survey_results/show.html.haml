@@ -1,0 +1,78 @@
+%p#notice= notice
+
+%p
+  %b User:
+  = @survey_result.user_id
+%p
+  %b Status:
+  = @survey_result.status
+%p
+  %b Fid:
+  = @survey_result.fid
+%p
+  %b Created:
+  = @survey_result.created
+%p
+  %b Ip:
+  = @survey_result.ip
+%p
+  %b Location:
+  = @survey_result.location
+%p
+  %b Nps:
+  = @survey_result.nps
+%p
+  %b Run:
+  = @survey_result.run
+%p
+  %b Collector:
+  = @survey_result.collector
+%p
+  %b A1:
+  = @survey_result.a1
+%p
+  %b A2:
+  = @survey_result.a2
+%p
+  %b A3:
+  = @survey_result.a3
+%p
+  %b A4:
+  = @survey_result.a4
+%p
+  %b A5:
+  = @survey_result.a5
+%p
+  %b A6comment:
+  = @survey_result.a6comment
+%p
+  %b Posfeedback:
+  = @survey_result.posfeedback
+%p
+  %b B1:
+  = @survey_result.b1
+%p
+  %b B2:
+  = @survey_result.b2
+%p
+  %b B3:
+  = @survey_result.b3
+%p
+  %b B4:
+  = @survey_result.b4
+%p
+  %b B5:
+  = @survey_result.b5
+%p
+  %b B6comment:
+  = @survey_result.b6comment
+%p
+  %b Contact:
+  = @survey_result.contact
+%p
+  %b Negfeedback:
+  = @survey_result.negfeedback
+
+= link_to 'Edit', edit_survey_result_path(@survey_result)
+\|
+= link_to 'Back', survey_results_path

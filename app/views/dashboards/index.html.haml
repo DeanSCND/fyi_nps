@@ -1,0 +1,59 @@
+:css
+	td {
+		padding-left: 5px;
+		padding-right: 5px;
+		border: 1px solid gray;
+	}
+	.n3 {
+		background-color: #ececec;
+	}
+	.header {
+		font-weight: bold;
+
+	}
+	.trendCell {
+		height: 100px;
+	}
+	.upText {
+		color: green;	
+	}
+	.downText {
+		color: red;
+	}
+	.upIndicator {
+		color: green;
+		float: right;
+		font-size: 11px;
+	}
+	.downIndicator {
+		color: red;
+		float: right;
+		font-size: 11px;
+	}
+	.indent {
+		padding-left: 10px;
+	}
+	.underline {
+		border-bottom: 1px solid black;
+		padding-bottom: 10px;
+	}
+
+%h2 Net Promoter Score - Executive Dashboard
+%h4 Latest Survey Run for practice visits ranging from #{@start_run.start_date} to #{@run.end_date}.
+
+%h3.underline Rolling Scores
+%p Rolling scores encompasses the cumulative scores across all practices for the exam visit period.
+= render :partial => 'fyi', :locals => {:data => @fyiResults, :last_data => @lastFyiResults, :title=> 'FYidoctors Cumulative NPS Scores - current for all locations', :sub_title1=>'Includes Patient NPS survey responses for exam visits from ' + @start_run.start_date + ' to ' + @run.end_date + '.', :sub_title2=>'The rolling score is a cumulative score calculated off of all survey responses received.'}
+%br
+= render :partial => 'trend', :locals => {:trend_data => @trend, :title=>'Overall NPS Trend', :sub_title=>''}
+%br
+%br
+%h3.underline Median Scores
+%p Median scores represent the median caclulation for the individual scores across all practices for the exam visit period.
+= render :partial => 'fyi', :locals => {:data => @current_median, :last_data => @last_median, :title=> 'FYidoctors Median NPS Scores - Based on cumulative NPS score for each clinic', :sub_title1=>'Includes exam visits from ' + @start_run.start_date + ' to ' + @run.end_date + '.', :sub_title2=>''}
+%br
+= render :partial => 'trend', :locals => {:trend_data => @median_trend, :title=>'Median Cumulative Trend', :sub_title=>''}
+%br
+.hidden
+	= render :partial => 'top_practices.html.haml'
+

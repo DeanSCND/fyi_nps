@@ -1,0 +1,21 @@
+%h2
+	=title
+
+%table
+	%tr
+		%td.scores-table-cell
+			Average Score
+			.metric-value
+				= (score.to_f/(results.count - naCount)).round(2)
+%br
+%h3
+	Score Breakdown
+%br
+%table.breakdown{:border=>1}
+	-counts.each do |c|
+		-if c[1].to_i > 0
+			= render :partial => 'reports/scale_answer.html.haml', :locals => {:answerVal=>c[0], :scoreCount=>c[1], :total=>results.count.to_f}
+	- if naCount > 0
+		= render :partial => 'reports/scale_answer.html.haml', :locals => {:answerVal=>'N/A', :scoreCount=>naCount, :total=>results.count.to_f}
+
+	

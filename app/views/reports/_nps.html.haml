@@ -1,0 +1,497 @@
+%html
+	%head
+		:css
+			body {
+				font-family: arial, helvetica, verdana, sans-serif;
+			}
+		
+			h1 {font-weight: 300;}
+
+			h2 {
+				color: gray;
+				font-weight: normal;
+			}
+			h3 {
+				font-weight: normal;
+				font-size: 18px;
+				padding-left: 20px;
+			}
+			.small {
+				font-size: 10px
+			}
+			.bold {
+				font-weight:bold;
+			}
+			.italic {
+				font-style:italic
+			}
+			.metrics-table  {
+				padding-left: 20px;
+			}
+			.trend-section {
+				padding-left: 20px;
+			}
+			.trend-table {
+				margin-left: 20px;
+				margin-right: 20px;
+			}
+			.question-table  {
+				padding-left: 20px;
+			}
+			.question-table td {
+				padding-left: 20px;
+			}
+			.metric-label {
+				font-size: 22px;
+				padding-right: 20px;
+				padding-bottom: 10px;
+			}
+			.metric-value {
+				font-size: 22px;
+				padding-bottom: 10px;
+				font-weight: bold;
+				padding-top: 10px
+			}
+			.breakdown {
+				border: 1px solid #ababab;
+			}
+			.scores-table-cell {
+				padding: 5px;
+				border: 1px solid #ABABAB;
+				margin-left: 40px;
+				width: 200px;
+				height: 60px;
+				font-size: 14px;
+				text-align: center;
+			}
+			.scores-explain-cell {
+				background-color: darkblue;
+				color: #ececec;
+				font-size: 14px;
+				padding: 5px;
+			}
+			.trend-table-cell {
+				font-size: 12px;
+				border: 1px solid #ababab
+
+			}
+			.average-cell {
+				background-color: #ececec;
+				border: 1px solid #ababab;
+				font-size: 14px;
+				text-align: center;
+				color: #ababab;
+			}
+			.quetion-summary {
+				padding-left: 40px;
+				padding-bottom: 5px;
+			}
+			.question-label {
+				font-weight: normal
+			}
+			.other-comments {
+				padding-left: 100px;
+			}
+			.comment-text {
+				font-weight: normal;
+			}
+			.indent-40 {
+				padding-left:40px;
+			}
+			.indent-60 {
+				padding-left:60px;
+			}
+			
+			.answer-bar {
+				color: #FFF;
+				background-color: blue;
+				border-radius: 5px;
+				padding: 5px;
+			}
+			#nps-explain {
+				padding-left: 30px;
+			}
+			#example-table {
+				border: 1px solid #ababab;
+			}
+			#example-table td {
+				padding-left: 5px;
+				padding-right: 5px;
+			}
+			.overline {
+				border-top: 1px solid black;
+				font-weight: bold;
+			}
+	%body
+		%h1
+			Net Promoter Score Report
+			- if request.format != "application/doc" && export == false
+				= link_to "Export Report", request.env['PATH_INFO']+".doc", :class=>'btn btn-primary pull-right'
+		%h2
+			=clinic.name
+			= " - " + run.month + ", " + run.year
+		%p
+			-if reportType == "group"
+				Group ID: #{clinic.id}
+			-else
+				Practice ID: #{clinic.practice_id}
+		%hr	
+		%h2
+			Key Metrics
+
+		%table.metrics-table
+			%tr
+				%td.metric-label
+					Net Promoter Score Indicies:
+				%td
+					%table
+						%tr
+							%td.scores-table-cell
+								NPS Index - Products
+								%p
+									for period
+								.metric-value
+									= nps1.to_s + "%"
+								%p
+									current quarter
+								.metric-value
+									= year_nps1.to_s + "%"
+								%p
+									exit 2014
+								.metric-value
+									= lastYearNps[0].to_s + "%"
+							%td.scores-table-cell
+								NPS Index - Exams
+								%p
+									for period
+								.metric-value
+									= nps2.to_s + "%"
+								%p
+									current quarter
+								.metric-value
+									= year_nps2.to_s + "%"
+								%p
+									exit 2014
+								.metric-value
+									= lastYearNps[1].to_s + "%"
+							%td.scores-table-cell								
+								NPS Index - Overall
+								%p
+									for period
+								.metric-value
+									= nps3.to_s + "%"
+								%p
+									current quarter
+								.metric-value
+									= year_nps3.to_s + "%"
+								%p
+									exit 2014
+								.metric-value
+									= lastYearNps[2].to_s + "%"
+						%tr
+							%td.scores-explain-cell
+								%div
+									%span
+										Promoters: 
+									%span{:style=>"font-weight: bold"} 
+										#{((results.all(:conditions=>"n1>8").count.to_f/results.all(:conditions => "n1 >= 0").count.to_f)*100).round(2)}%
+								%div
+									%span
+										Passives: 
+									%span{:style=>"font-weight: bold"} 
+										#{((results.all(:conditions=>"n1<9 and n1>6").count.to_f/results.all(:conditions => "n1 >= 0").count.to_f)*100).round(2)}%
+								%div
+									%span
+										Detractors:
+									%span{:style=>"font-weight: bold"} 
+										#{((results.all(:conditions=>"n1<7").count.to_f/results.all(:conditions => "n1 >= 0").count.to_f)*100).round(2)}%
+								%div
+									%span
+										Opted Out:
+									%span{:style=>"font-weight: bold"} 
+										#{(results.all.count.to_f - results.all(:conditions => "n1 >= 0").count.to_f.round(0)).to_s}
+							%td.scores-explain-cell
+								%div
+									%span
+										Promoters: 
+									%span{:style=>"font-weight: bold"} 
+										#{((results.all(:conditions=>"n2>8").count.to_f/results.all(:conditions => "n2 >= 0").count.to_f)*100).round(2)}%
+								%div
+									Passives: #{((results.all(:conditions=>"n2<9 and n2>6").count.to_f/results.all(:conditions => "n2 >= 0").count.to_f)*100).round(2)}%
+								%div
+									%span
+										Detractors:
+									%span{:style=>"font-weight: bold"} 
+										#{((results.all(:conditions=>"n2<7").count.to_f/results.all(:conditions => "n2 >= 0").count.to_f)*100).round(2)}%
+								%div
+									%span
+										Opted Out:
+									%span{:style=>"font-weight: bold"} 
+										#{(results.all.count.to_f - results.all(:conditions => "n2 >= 0").count.to_f.round(0)).to_s}
+							%td.scores-explain-cell
+								%div
+									%span
+										Promoters: 
+									%span{:style=>"font-weight: bold"} 
+										#{((results.all(:conditions=>"n3>8").count.to_f/results.all.count.to_f)*100).round(2)}%
+								%div
+									Passives: #{((results.all(:conditions=>"n3<9 and n3>6").count.to_f/results.all.count.to_f)*100).round(2)}%
+								%div
+									%span
+										Detractors:
+									%span{:style=>"font-weight: bold"} 
+										#{((results.all(:conditions=>"n3<7").count.to_f/results.all.count.to_f)*100).round(2)}%										
+						%tr
+							%td.average-cell
+								FYI Doctors Average
+								.metric-value
+									#{fyiNps1.round(2)}%
+							%td.average-cell
+								FYI Doctors Average
+								.metric-value
+									#{fyiNps2.round(2)}%
+							%td.average-cell
+								FYI Doctors Average
+								.metric-value
+									#{fyiNps3.round(2)}%
+			%tr
+				%td.metric-label
+					Invites Sent:
+				%td.metric-value
+					= invites
+			%tr
+				%td.metric-label
+					Responses Received:
+				%td.metric-value
+					= results.count
+					- percent = (number_to_percentage(results.count.to_f / invites.to_f))
+					&nbsp;&nbsp;(
+					= (percent.to_f * 100).round(2).to_s + "%"					
+					)
+					&nbsp;&nbsp;
+					%span{:style=>'color: #ABABAB'}
+						= tot_results.count
+						&nbsp;&nbsp;total to date
+		%br										
+		%br
+		%br										
+		%br
+		%h3 Trend Analysis - Overall Quarterly Rolling Scores
+		%p.indent-40.small (please note: Quarter 1 is represented by December of the prior year plus January and February of the current year)
+		- counter = 1
+		-if reportType == "group"
+			- stats_rolling = PracticeReport.where(:practice_group_id=>clinic.id).where(:run_id=>quarter_runs).where(:stat_type=>'rolling').order(run_id: :asc)
+		-else
+			- stats_rolling = PracticeReport.where(:practice_id=>clinic.practice_id).where(:run_id=>quarter_runs).where(:stat_type=>'rolling').order(run_id: :asc)
+		.trend-section
+			%table.trend-table
+				%tr
+					%td.trend-table-cell
+
+					%td.trend-table-cell.bold
+						Response Rate
+					%td.trend-table-cell.bold
+						Product NPS
+					%td.trend-table-cell.bold
+						Exam NPS
+					%td.trend-table-cell.bold
+						Overall NPS
+
+				-stats_rolling.each do |stat|
+					- run = Run.find(stat.run_id)
+					%tr
+						%td.trend-table-cell
+							= run.quarter
+						%td.trend-table-cell
+							=(stat.response_rate*100).round(2).to_s + "%"
+						%td.trend-table-cell
+							=(stat.n1*100).round(2).to_s + "%"
+						%td.trend-table-cell
+							=(stat.n2*100).round(2).to_s + "%"
+						%td.trend-table-cell
+							=(stat.n3*100).round(2).to_s + "%"
+					- counter=counter+1
+
+		%br
+		%h3 How Net Promoter Scores are Calculated
+
+		#nps-explain
+			%p A net promoter score (NPS) survey question is a question that is asked of respondents inquiring as to whether or not they would refer someone to an establishment. The questions are asked on a scale of 0-10 where 0 indicates an unlikeliness to refer while a higher score indicates the opposite. We ask 3 key NPS questions at the end of the survey. They are:
+			
+			%ul
+				%li
+					%span.bold 
+						Product Related: 
+					Regardless of whether you purchased or considered purchasing products from us, on a scale of 0 to 10 how likely would you be to &#8220;actively&#8221; refer a friend or family to our clinic for items such as 
+					%span.bold 
+						eyeglasses, contact lenses, or other products? 
+					And please, if you do not feel you can adequately score this question, indicate so and provide a reason.
+				%li
+					%span.bold 
+						Exam Related:
+					On a scale from 0 to 10, how likely are you to &#8220;actively&#8221; refer a friend or family member to our clinic for 
+					%span.bold
+						examination services? 
+					If your recent visit or visits did not include an eye exam, please choose the first answer and provide some information on why.	
+				%li 
+					%span.bold 
+						Overall:
+					On a scale of 0 to 10 how likely would you be to &#8220;actively&#8221; refer a friend or family to our clinic for 
+					%span.bold 
+						ALL
+					services that we provide and for the
+					%span.bold 
+						overall experience
+					of our clinic?
+			%p
+				Respondents are then grouped into the following 3 categories:
+			%ul
+				%li
+					%span.bold 
+						Promoters:
+					Those that answered the question with a score of 9 or 10.
+				%li
+					%span.bold 
+						Passives:
+					Those that answered the question with a score of 7 or 8
+				%li
+					%span.bold 
+						Detractors
+					Those that answered the question with a score of less than 7
+			%p
+				The net promoter score is then calculated using the following formula
+
+
+			%table#example-table{:border=>1}
+				%tr
+					%td
+						Explanation
+					%td
+						Example
+					%td
+						Scenario
+				%tr
+					%td
+						Percentage of Promoters
+					%td
+						70%
+					%td
+						7 out of 10 responded with an 9 or 10
+				%tr
+					%td
+						Percentage of Passives 
+						%span.italic
+							(these are thrown out)
+					%td
+						20%
+					%td
+						2 out of 10 responded with a 7 or 8				
+				%tr
+					%td
+						Percentage of Detractor
+					%td
+						10%
+					%td
+						1 out of 10 responded with less than 7
+				%tr
+					%td.overline
+						Net Promoter Score
+					%td.overline
+						60%
+					%td.overline
+						Promoters (7) - Detractors (1) out of 10
+
+			%br
+			%br
+			%p{:style=>'font-weight: bold; font-style: italic;'} NOTE: There are 2 sets of numbers displayed for each NPS index for your location(s). The first is the score for the period of the survey which is identified in the report title. The second is the accumulated total for the year net of all responses received. You can see the total responses received for the year displayed in gray next to your responses for the period of the survey.
+
+			%br
+			%p The three NPS questions are specifically worded:
+			%div{:style=>"font-size: 12px; padding-left: 20px;"}
+				%p 1) Regardless of whether you purchased or considered purchasing products from us, on a scale of 0 to 10 how likely would you be to actively refer a friend or family to our clinic for items such as eyeglasses, contact lenses, or other products? And please, if you do not feel you can adequately score this question, indicate so and provide a reason.
+				%p 2) On a scale from 0 to 10, how likely are you to actively refer a friend or family member to our clinic for examination services? If your recent visit or visits did not include an eye exam, please choose the first answer and provide some information on why.
+				%p 3) On a scale of 0 to 10 how likely would you be to &#8220;actively&#8221; refer a friend or family to our clinic for ALL services that we provide and for the overall experience of our clinic?
+		%br
+		%br
+		%h2 How the Survey is Run
+		%p Patients email addresses, names, practice visited and visit dates are pulled from Acuitas and loaded into the survey system. Patients are selected on the following criteria.
+		%div{:style=>"padding-left: 20px;"}
+			%ul
+			%li They must be 18 years or older
+			%li They have their "receive marketing" check box set to true
+			%li They were in the clinic at least 1 month prior to survey and typically no more than 2 months prior (this is done to allow for products to be received and worn for some time before we request a survey response)
+		%br
+		%p To explain how the delay works, here is an example. If we run a survey on April 15 you should expect that generally the last patient visit recorded between  between February 15th and March 15th. In this case we would be running the April survey for visits in February and March. Be aware that this is a guideline and can change from time-to-time depending on survey scheduling. We have not seen a large variance in response rate when we increase the time gap between visit and survey. 
+
+
+		%br
+		%br
+		%h2 Supporting Questions
+
+		%p Beyond the 3 NPS questions that were asked and summarized above, the following questions were also asked. Each of these questions is answered on a scale of 0 to 10 as well (exception: one question is presented as a yes/no answer). Though we ask the respondents to score these questions, these are not considered NPS questions. The score you see is simply the average score answered on the question. The score breakdown shows how many people answered the questions with a certain score. Each question is preceded with a comment question whereby the respondents can give textual feedback. That feedback is summarized showing the respondents email and the score they gave on the question.
+
+		- sums = results.select("sum(a1) as a1, sum(a2) as a2, sum(a3) as a3, sum(a4) as a4, sum(a5) as a5, sum(a6) as a6, sum(a7) as a7, sum(a8) as a8")	
+	
+		- answerCounts = results.group('a1').order('a1 asc').count('a1')
+		- naCount = results.where(:a1=>nil).count
+		- comments = results.where(["c1!=''"]).select("c1 as c, patient_id, a1 as a")
+		= render :partial => 'reports/question.html.haml', :locals => {:title=>"Were you treated like a welcomed guest by the staff members and doctor(s)?", :score=>sums[0][:a1], :results=>results, :counts=>answerCounts, :naCount=>naCount, :comments=>comments}
+		= render :partial => 'reports/comments.html.haml', :locals => {:comments=>comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
+		
+		- answerCounts = results.group('a2').order('a2 asc').count('a2')
+		- naCount = results.where(:a2=>nil).count
+		= render :partial => 'reports/question.html.haml', :locals => {:title=>"Were you promptly attended to without a significant wait time throughout your eye care experience?", :score=>sums[0][:a2], :results=>results, :counts=>answerCounts, :naCount=>naCount}
+		= render :partial => 'reports/yes_no.html.haml', :locals=>{:results=>results}
+
+		- answerCounts = results.group('a3').order('a3 asc').count('a3')
+		- naCount = results.where(:a3=>nil).count
+		- comments = results.where(["c3!=''"]).select("c3 as c, patient_id, a3 as a")
+		- opt_out_comments = results.where(["a3o!=''"]).select("a3o as c, patient_id, a3 as a")
+		= render :partial => 'reports/question.html.haml', :locals => {:title=>"How would your rate the overall experience with your doctor?", :score=>sums[0][:a3], :results=>results, :counts=>answerCounts, :naCount=>naCount}
+		= render :partial => 'reports/opt_out_comments.html.haml', :locals => {:comments=>opt_out_comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
+		= render :partial => 'reports/comments.html.haml', :locals => {:comments=>comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
+
+		- answerCounts = results.group('a4').order('a4 asc').count('a4')
+		- naCount = results.where(:a4=>nil).count
+		- comments = results.where(["c4!=''"]).select("c4 as c, patient_id, a4 as a")
+		- opt_out_comments = results.where(["a4o!=''"]).select("a4o as c, patient_id, a4 as a")
+		= render :partial => 'reports/question.html.haml', :locals => {:title=>"Did the doctor and staff adequately assess your vision concerns and unique lifestyle needs?", :score=>sums[0][:a4], :results=>results, :counts=>answerCounts, :naCount=>naCount}
+		= render :partial => 'reports/opt_out_comments.html.haml', :locals => {:comments=>opt_out_comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
+		= render :partial => 'reports/comments.html.haml', :locals => {:comments=>comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
+
+		- answerCounts = results.group('a5').order('a5 asc').count('a5')
+		- naCount = results.where(:a5=>nil).count
+		- comments = results.where(["c5!=''"]).select("c5 as c, patient_id, a5 as a")
+		- opt_out_comments = results.where(["a5o!=''"]).select("a5o as c, patient_id, a5 as a")
+		= render :partial => 'reports/question.html.haml', :locals => {:title=>"How would you rate the overall expertise of the doctors and staff?", :score=>sums[0][:a5], :results=>results, :counts=>answerCounts, :naCount=>naCount}
+		= render :partial => 'reports/opt_out_comments.html.haml', :locals => {:comments=>opt_out_comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
+		= render :partial => 'reports/comments.html.haml', :locals => {:comments=>comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
+
+		- answerCounts = results.group('a6').order('a6 asc').count('a6')
+		- naCount = results.where(:a6=>nil).count
+		- comments = results.where(["c6!=''"]).select("c6 as c, patient_id, a6 as a")
+		- opt_out_comments = results.where(["a6o!=''"]).select("a6o as c, patient_id, a6 as a")
+		= render :partial => 'reports/question.html.haml', :locals => {:title=>"Did the doctor and staff provide valuable product information to you, explaining the benefits of new personalized technology in lenses and how it would improve your vision and lifestyle needs: On Contact Lenses?", :score=>sums[0][:a6], :results=>results, :counts=>answerCounts, :naCount=>naCount}
+		= render :partial => 'reports/opt_out_comments.html.haml', :locals => {:comments=>opt_out_comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
+		= render :partial => 'reports/comments.html.haml', :locals => {:comments=>comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
+
+		- answerCounts = results.group('a7').order('a7 asc').count('a7')
+		- naCount = results.where(:a7=>nil).count
+		- comments = results.where(["c7!=''"]).select("c7 as c, patient_id, a7 as a")
+		- opt_out_comments = results.where(["a7o!=''"]).select("a7o as c, patient_id, a7 as a")
+		= render :partial => 'reports/question.html.haml', :locals => {:title=>"Did the doctor and staff provide valuable product information to you, explaining the benefits of new personalized technology in lenses and how it would improve your vision and lifestyle needs: On Eyeglasses and Lenses?", :score=>sums[0][:a7], :results=>results, :counts=>answerCounts, :naCount=>naCount}
+		= render :partial => 'reports/opt_out_comments.html.haml', :locals => {:comments=>opt_out_comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
+		= render :partial => 'reports/comments.html.haml', :locals => {:comments=>comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
+
+		- answerCounts = results.group('a8').order('a8 asc').count('a8')
+		- naCount = results.where(:a8=>nil).count
+		- comments = results.where(["c8!=''"]).select("c8 as c, patient_id, a8 as a")
+		- opt_out_comments = results.where(["a8o!=''"]).select("a8o as c, patient_id, a8 as a")
+		= render :partial => 'reports/question.html.haml', :locals => {:title=>"How would you rate the selection of fashion frames and the overall value of the products you purchased or browsed in our clinic?", :score=>sums[0][:a8], :results=>results, :counts=>answerCounts, :naCount=>naCount}
+		= render :partial => 'reports/opt_out_comments.html.haml', :locals => {:comments=>opt_out_comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
+		= render :partial => 'reports/comments.html.haml', :locals => {:comments=>comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
+				
+		%h2 Final Commentary
+		%h3 Is there any addition feedback you would like to give so we can continue to improve to provide you with the best care?
+		- comments = results.where(["c9!=''"]).select("c9 as c, patient_id, n3 as a")
+		= render :partial => 'reports/comments.html.haml', :locals => {:comments=>comments, :scoreLabel=>'Overall NPS', :anonymous=>anonymous}

@@ -1,0 +1,115 @@
+.report-container.hidden
+	%h2
+		Run Report
+		
+	= text_field_tag "Run Name", nil, :id=>"run-name", :style=>"width: 200px;", :autofocus => true
+	= link_to "run", "#", id: "run-link"
+		
+		
+
+%h1 
+	=@title
+
+%p#msg
+%table#report-table
+	%thead
+		%tr
+			%th{:data=>{:sort=>"string"}}
+				Type
+			%th{:data=>{:sort=>"string"}}
+				Clinic
+			%th{:data=>{:sort=>"int"}}
+				Invitations
+			%th{:data=>{:sort=>"int"}}
+				Responses
+			%th{:data=>{:sort=>"int"}}
+				Response %age
+			%th{:data=>{:sort=>"string"}}
+				NPS1
+			%th{:data=>{:sort=>"string"}}
+				NPS2
+			%th{:data=>{:sort=>"string"}}
+				NPS3
+			%th{:data=>{:sort=>"string"}}
+				NPS Avg
+			%th{:data=>{:sort=>"string"}}
+				Q1 Avg
+			%th{:data=>{:sort=>"string"}}
+				Q2 Avg
+			%th{:data=>{:sort=>"string"}}
+				Q2 Yes %
+			%th{:data=>{:sort=>"string"}}
+				Q2 No %			
+			%th{:data=>{:sort=>"string"}}
+				Q3 Avg
+			%th{:data=>{:sort=>"string"}}
+				Q4 Avg
+			%th{:data=>{:sort=>"string"}}
+				Q5 Avg
+			%th{:data=>{:sort=>"string"}}
+				Q6 Avg
+			%th{:data=>{:sort=>"string"}}
+				Q7 Avg
+			%th{:data=>{:sort=>"string"}}
+				Q8 Avg
+		%tbody
+			%tr.average-row
+				%td
+					All
+				%td
+					FYI Doctors (all)
+				-results = SurveyAnswer.where(:run_id=>@run.id, :status=>"Complete")
+				-invites = Patient.where(:run_id=>@run.id)
+
+				- sums = results.select("sum(a1) as a1, sum(a2) as a2, sum(a3) as a3, sum(a4) as a4, sum(a5) as a5, sum(a6) as a6, sum(a7) as a7, sum(a8) as a8")	
+				-nps1 = (((results.all(:conditions => "n1>8").count.to_f / results.count.to_f) * 100) - ((results.all(:conditions => "n1<7").count.to_f / results.count.to_f) * 100)).round(2)
+				-nps2 = (((results.all(:conditions => "n2>8").count.to_f / results.count.to_f) * 100) - ((results.all(:conditions => "n2<7").count.to_f / results.count.to_f) * 100)).round(2)
+				-nps3 = (((results.all(:conditions => "n3>8").count.to_f / results.count.to_f) * 100) - ((results.all(:conditions => "n3<7").count.to_f / results.count.to_f) * 100)).round(2)
+				- yes = results.where(:b2=>'Yes')
+				- no = results.where(:b2=>'No')
+
+				%td
+					=invites.count
+				%td
+					=results.count.to_s
+				%td
+					=((results.count.to_f/invites.count.to_f)*100).round(2).to_s + "%"
+				%td
+					=nps1.to_s + "%"
+				%td
+					=nps2.to_s + "%"
+				%td
+					=nps3.to_s + "%"
+				%td 
+					=((nps1 + nps2 + nps3)/3).round(2).to_s + "%"
+				%td
+					=(sums[0][:a1].to_f/results.count.to_f).round(2)
+				%td
+					=(sums[0][:a2].to_f/results.count.to_f).round(2)
+				-yes=((yes.count.to_f/results.count.to_f)*100).round(2)
+				-no=((no.count.to_f/results.count.to_f)*100).round(2)
+				%td
+					=yes
+				%td
+					=no
+				%td
+					=(sums[0][:a3].to_f/results.count.to_f).round(2)
+				%td
+					=(sums[0][:a4].to_f/results.count.to_f).round(2)
+				%td
+					=(sums[0][:a5].to_f/results.count.to_f).round(2)
+				%td
+					=(sums[0][:a6].to_f/results.count.to_f).round(2)
+				%td
+					=(sums[0][:a7].to_f/results.count.to_f).round(2)
+				%td
+					=(sums[0][:a8].to_f/results.count.to_f).round(2)
+
+			- if @type == "clinics"
+				= render partial: 'clinic_listing', :locals=>{:clinics=>@clinics, :run=>@run, :all_results=>results, :all_invites=>invites, :all_sums=>sums, :all_yes=>yes, :all_no=>no, :allNps1=>nps1, :allNps2=>nps2, :allNps3=>nps3}
+			- elsif @type == "groups"
+				= render partial: 'group_listing', :locals=>{:groups=>@groups, :run=>@run, :all_results=>results, :all_invites=>invites, :all_sums=>sums, :all_yes=>yes, :all_no=>no, :allNps1=>nps1, :allNps2=>nps2, :allNps3=>nps3}
+			- elsif @type == "both"
+				= render partial: 'clinic_listing', :locals=>{:clinics=>@clinics, :run=>@run, :all_results=>results, :all_invites=>invites, :all_sums=>sums, :all_yes=>yes, :all_no=>no, :allNps1=>nps1, :allNps2=>nps2, :allNps3=>nps3}
+				= render partial: 'group_listing', :locals=>{:groups=>@groups, :run=>@run, :all_results=>results, :all_invites=>invites, :all_sums=>sums, :all_yes=>yes, :all_no=>no, :allNps1=>nps1, :allNps2=>nps2, :allNps3=>nps3}
+			

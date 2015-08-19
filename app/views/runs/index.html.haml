@@ -1,0 +1,58 @@
+%h1 Survey Runs
+
+%table.standard-table
+	%tr
+		%th Name
+		%th Run Over
+		%th
+		%th
+		%th
+
+	- @runs.each do |run|
+		%tr
+			%td= run.name
+			%td= run.month + ", " + run.year
+			%td= link_to 'Edit', edit_run_path(run), :class=>'btn btn-primary btn-sm'
+			%td= link_to 'Load Results', new_survey_result_path, :class=>'btn btn-primary btn-sm'
+			%td= link_to 'Destroy', run, :method => :delete, :data => { :confirm => 'Are you sure?' }, :class=>'btn btn-danger btn-sm'
+			%td
+				.btn-group
+					%button.btn.btn-success.btn-sm.dropdown-toggle{:type=>"button", :data=>{:toggle=>'dropdown'}}
+						Patients
+						%span.caret
+					%ul.dropdown-menu{:role=>"menu"}
+						%li
+							%a{:href=>"#{new_patient_path}?run=#{run.id}"}
+								Load New
+						%li
+							%a{:href=>"#{patients_path}?run=#{run.id}"}
+								Export for Survey
+						%li
+							%a{:href=>"#{run_fluids_path(run.id)}"}
+								Load Fluid
+			%td
+				.btn-group
+					%button.btn.btn-success.btn-sm.dropdown-toggle{:type=>"button", :data=>{:toggle=>'dropdown'}}
+						Reports
+						%span.caret
+					%ul.dropdown-menu{:role=>"menu"}
+						%li
+							%a{:href=>"#{run_clinics_reports_path(run.id)}?type=clinics"}
+								By Clinic
+						%li
+							%a{:href=>"#{run_clinics_reports_path(run.id)}?type=groups"}
+								By Group
+						%li
+							%a{:href=>"#{run_clinics_reports_path(run.id)}?type=both"}
+								Combined										
+						%li
+							%a{:href=>"#{new_run_statistic_path(run.id)}"}
+								Generate Statistics
+			%td= link_to 'Distribute', new_run_distribution_path(run), :class=>'btn btn-primary btn-sm'
+			-if ((run.id > 4 && run.id < 7) || run.id > 9) 
+				-if Winner.where(:run_id => run.id).first == nil
+					%td= link_to 'Draw', run_draws_path(run), :class=>'btn btn-primary btn-sm'
+
+%br
+
+= link_to 'New Run', new_run_path, :class=>'btn btn-primary'

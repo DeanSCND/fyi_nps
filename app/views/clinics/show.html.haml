@@ -1,0 +1,12 @@
+%p#notice= notice
+
+%p
+  %b Practice Id:
+  = @clinic.practice_id
+%p
+  %b Name:
+  = @clinic.name
+
+= link_to 'Edit', edit_clinic_path(@clinic)
+\|
+= link_to 'Back', clinics_path

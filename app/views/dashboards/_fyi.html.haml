@@ -1,0 +1,66 @@
+%h4
+	#{title}
+%p.indent
+	#{sub_title1}
+%p.indent
+	
+%br
+%table
+	%tr
+		%td.header
+			NPS - Products
+		%td.header
+			NPS - Exams
+		%td.header
+			NPS - Overall
+		%td.header
+			Responses
+		%td.header
+			Response Rate
+	%tr
+		%td
+			=(data.n1*100).round(2).to_s + "%"
+		%td
+			=(data.n2*100).round(2).to_s + "%"
+		%td
+			=(data.n3*100).round(2).to_s + "%"
+		%td
+			=data.responses
+		%td
+			=(data.response_rate*100).round(2).to_s + "%"
+	%tr
+		%td
+			-if (data.n1-last_data.n1) > 0
+				%span.upText
+					Up 
+			-elsif(data.n1-last_data.n1) < 0
+				%span.downText
+					Down
+			=((data.n1-last_data.n1)*100).round(2).to_s + " points"
+		%td
+			-if (data.n2-last_data.n2) > 0
+				%span.upText
+					Up 
+			-elsif(data.n2-last_data.n2) < 0
+				%span.downText
+					Down
+			=((data.n2-last_data.n2)*100).round(2).to_s + " points"
+		%td
+			-if (data.n3-last_data.n3) > 0
+				%span.upText
+					Up 
+			-elsif (data.n3-last_data.n3) < 0
+				%span.downText
+					Down
+			=((data.n3-last_data.n3)*100).round(2).to_s + " points"
+		%td
+			="+" + ((data.responses-last_data.responses)).to_s 
+
+		%td
+			-if (data.response_rate-last_data.response_rate) > 0
+				Up 
+			-elsif(data.response_rate-last_data.response_rate) < 0
+				%span.downText
+					Down
+			=((data.response_rate-last_data.response_rate)*100).round(2).to_s + " points"
+
