@@ -1,6 +1,7 @@
 class SurveyResultsController < ApplicationController
   before_action :set_survey_result, only: [:show, :edit, :update, :destroy]
   require 'csv'
+  require 'roo'
 
   # GET /survey_results
   # GET /survey_results.json
@@ -42,7 +43,22 @@ class SurveyResultsController < ApplicationController
     i = 0
     run_id = 0
 
-    CSV.parse(params[:survey_result][:file].read, {:headers => true}) do |row|
+    puts "PARMS: " + params[:survey_result][:file].to_s
+
+    name = params[:survey_result][:file].original_filename
+    directory = 'tmp'
+    path = File.join(directory, "TEMP_RESULTS.csv")
+    csv_path = File.join(directory, "TEMP_RESULTS2.csv")
+    puts "PATH: " + path
+    File.open(path, "wb") { |f| f.write(params[:survey_result][:file].read) }
+
+    parsed_file = Roo::CSV.new(path) 
+
+    puts parsed_file.sheet(0).to_csv(csv_path)
+
+    csv_file = File.read(csv_path)
+
+    CSV.parse(csv_file, {:headers => true}) do |row|
       start_of_results = 14
       @result = SurveyAnswer.new
       email = row[start_of_results]
@@ -107,9 +123,11 @@ class SurveyResultsController < ApplicationController
       end
       i = i + 1
     end
+
+    Statistics::Utils.generate_stats_for_run(run_id: run_id)
     
     respond_to do |format|
-      format.html { redirect_to new_run_statistic_path(run_id) }
+      format.html { redirect_to runs_path(run_id) }
       format.json { render action: 'show', status: :created, location: @survey_result }
     end
   end

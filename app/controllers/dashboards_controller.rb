@@ -11,7 +11,7 @@ class DashboardsController < ApplicationController
 
       @run = Run.find(run_id)
       @start_run = Run.find(5)
-      @previous_run = Run.find(run_id.to_i-1) 
+      @previous_run = Run.where("id < #{run_id}").maximum(run_id) 
 
   		@fyiResults = PracticeReport.where(:practice_id=>0, :run_id=>run_id, :stat_type=>"rolling").first
 		  @lastFyiResults = PracticeReport.where(:practice_id=>0, :run_id=>run_id-1, :stat_type=>"rolling").first

@@ -2,6 +2,8 @@ class PatientsController < ApplicationController
   
   require 'csv'
   require 'json'
+  require 'roo'
+
   before_action :set_patient, only: [:show, :edit, :update, :destroy]
 
   # GET /patients
@@ -103,7 +105,23 @@ class PatientsController < ApplicationController
     #  return
     #end
 
-    CSV.parse(params[:patient][:file].read) do |row|
+    puts "PARMS: " + params[:patient][:file].to_s
+
+    name = params[:patient][:file].original_filename
+    directory = 'tmp'
+    path = File.join(directory, "TEMP_PATIENTS.xlsx")
+    csv_path = File.join(directory, "TEMP_PATIENTS.csv")
+    puts "PATH: " + path
+    File.open(path, "wb") { |f| f.write(params[:patient][:file].read) }
+
+
+    parsed_file = Roo::Excelx.new(path) 
+
+    puts parsed_file.sheet(0).to_csv(csv_path)
+
+    csv_file = File.read(csv_path)
+    
+    CSV.parse(csv_file, headers: true) do |row|
       if row[3] != "Full Name"
         rawEmail = row[6];
         cleanEmail = rawEmail.delete(' ').gsub(',','.')
@@ -174,7 +192,7 @@ class PatientsController < ApplicationController
       
       # TODO - ADD UNIQUNESS CHECK AND UPDATE RECORD INSTEAD
     end    
-    
+       
     #@patient = Patient.new(patient_params)
 
     respond_to do |format|

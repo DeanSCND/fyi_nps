@@ -7,6 +7,15 @@ module Fluid
       @auth = {:username => u, :password => p}
     end
 
+    def get_results(date:, page:)
+      options = {
+        :basic_auth => @auth,
+        :hehaders => { 'Content-Type' => 'application/json' }
+      }      
+
+      resp = self.class.get("/api/v3/surveys/537808/responses/?_created_at>#{date}&page=#{page}", options)
+    end      
+
     def create_collector(id, name)
       Rails.logger.debug("POSTING: " + name + " for " + id.to_s)
       options = {
@@ -17,7 +26,6 @@ module Fluid
       Rails.logger.debug("RESPONSE: " + resp.to_s)
       Rails.logger.debug("DONE POSTING COLLECTOR")
     end
-
 
     def create_list(name)
       options = {
