@@ -16,6 +16,11 @@
 				font-size: 18px;
 				padding-left: 20px;
 			}
+			.logo {
+				background-image: url("http://www.fyidoctors.com/themes/fyi/img/logo_fyi.png");
+				width: 229px;
+				height: 60px;
+			}
 			.small {
 				font-size: 10px
 			}
@@ -101,13 +106,72 @@
 			.indent-60 {
 				padding-left:60px;
 			}
-			
-			.answer-bar {
+			.breakdown-table {
+				width: 100%;
+				border-bottom: 1px solid gray;
+				border-left: 1px solid gray;
+				border-right: 1px solid gray;
+				font-size: 12px;
+
+			}
+			.breakdown-cell {
+				vertical-align: bottom;								
+				text-align: center;
+				width: 50px;			
+			}
+			.answer-bar-na {
 				color: #FFF;
 				background-color: blue;
-				border-radius: 5px;
 				padding: 5px;
+				width: 30px;
 			}
+			.breakdown-cell-pos {
+				vertical-align: bottom;								
+				text-align: center;
+				width: 50px;
+			}
+			.answer-bar-pos {
+				color: #FFF;
+				background-color: green;
+				padding: 5px;
+				width: 30px;
+			}
+			.breakdown-cell-neutral {
+				vertical-align: bottom;								
+				text-align: center;
+				background-color: silver;
+				width: 50px;
+			}
+			.answer-bar-neutral {
+				color: gray;
+				background-color: yellow;
+				padding: 5px;
+				width: 30px;
+			}
+			.breakdown-cell-neg {
+				vertical-align: bottom;								
+				text-align: center;
+				width: 50px;
+			}
+			.answer-bar-neg {
+				color: #FFF;
+				background-color: red;
+				padding: 5px;
+				width: 30px;
+			}
+			
+			.breakdown-label {
+				text-align: center;			
+			}
+
+			.section-label {
+				text-align: center;
+			}
+
+			.blank{
+				width: 30px;
+			}
+
 			#nps-explain {
 				padding-left: 30px;
 			}
@@ -123,6 +187,7 @@
 				font-weight: bold;
 			}
 	%body
+		.logo
 		%h1
 			Net Promoter Score Report
 			- if request.format != "application/doc" && export == false
@@ -153,7 +218,7 @@
 								.metric-value
 									= nps1.to_s + "%"
 								%p
-									current quarter
+									year to date
 								.metric-value
 									= year_nps1.to_s + "%"
 								%p
@@ -167,7 +232,7 @@
 								.metric-value
 									= nps2.to_s + "%"
 								%p
-									current quarter
+									year to date
 								.metric-value
 									= year_nps2.to_s + "%"
 								%p
@@ -181,7 +246,7 @@
 								.metric-value
 									= nps3.to_s + "%"
 								%p
-									current quarter
+									year to date
 								.metric-value
 									= year_nps3.to_s + "%"
 								%p
@@ -243,15 +308,15 @@
 										#{((results.all(:conditions=>"n3<7").count.to_f/results.all.count.to_f)*100).round(2)}%										
 						%tr
 							%td.average-cell
-								FYI Doctors Average
+								FYI Doctors Median
 								.metric-value
 									#{fyiNps1.round(2)}%
 							%td.average-cell
-								FYI Doctors Average
+								FYI Doctors Median
 								.metric-value
 									#{fyiNps2.round(2)}%
 							%td.average-cell
-								FYI Doctors Average
+								FYI Doctors Median
 								.metric-value
 									#{fyiNps3.round(2)}%
 			%tr
@@ -273,6 +338,31 @@
 						= tot_results.count
 						&nbsp;&nbsp;total to date
 		%br										
+		%br
+		%br										
+		%br
+		%br
+		%h3 NPS Breakdown - Products
+		- answerCounts = results.where('n1 is not null').group('n1').order('n1 asc').count('n1')
+		- naCount = results.where(:n1=>nil).count
+		
+		= render :partial => 'reports/scale_answer2.html.haml', :locals => {:answerCounts=>answerCounts, :total=>results.count.to_f, :naCount=>naCount}
+
+		%br
+		%h3 NPS Breakdown - Exams
+		- answerCounts = results.group('n2').order('n2 asc').count('n2')
+		- naCount = results.where(:n2=>nil).count
+
+		= render :partial => 'reports/scale_answer2.html.haml', :locals => {:answerCounts=>answerCounts, :total=>results.count.to_f, :naCount=>naCount}
+
+		%br										
+		%h3 NPS Breakdown - Overall
+		- answerCounts = results.group('n3').order('n3 asc').count('n3')
+		- naCount = results.where(:n3=>nil).count
+
+		= render :partial => 'reports/scale_answer2.html.haml', :locals => {:answerCounts=>answerCounts, :total=>results.count.to_f, :naCount=>naCount}
+
+		%br
 		%br
 		%br										
 		%br
@@ -440,14 +530,14 @@
 		
 		- answerCounts = results.group('a2').order('a2 asc').count('a2')
 		- naCount = results.where(:a2=>nil).count
-		= render :partial => 'reports/question.html.haml', :locals => {:title=>"Were you promptly attended to without a significant wait time throughout your eye care experience?", :score=>sums[0][:a2], :results=>results, :counts=>answerCounts, :naCount=>naCount}
-		= render :partial => 'reports/yes_no.html.haml', :locals=>{:results=>results}
+		= render :partial => 'reports/question.html.haml', :locals => {:title=>"Were you promptly attended to without a significant wait time throughout your eye care experience?", :score=>sums[0][:a1], :results=>results, :counts=>answerCounts, :naCount=>naCount, :comments=>comments}
+		= render :partial => 'reports/comments.html.haml', :locals => {:comments=>comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
 
 		- answerCounts = results.group('a3').order('a3 asc').count('a3')
 		- naCount = results.where(:a3=>nil).count
 		- comments = results.where(["c3!=''"]).select("c3 as c, patient_id, a3 as a")
 		- opt_out_comments = results.where(["a3o!=''"]).select("a3o as c, patient_id, a3 as a")
-		= render :partial => 'reports/question.html.haml', :locals => {:title=>"How would your rate the overall experience with your doctor?", :score=>sums[0][:a3], :results=>results, :counts=>answerCounts, :naCount=>naCount}
+		= render :partial => 'reports/question.html.haml', :locals => {:title=>"How would you rate the overall experience with your doctor?", :score=>sums[0][:a3], :results=>results, :counts=>answerCounts, :naCount=>naCount}
 		= render :partial => 'reports/opt_out_comments.html.haml', :locals => {:comments=>opt_out_comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
 		= render :partial => 'reports/comments.html.haml', :locals => {:comments=>comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
 
@@ -463,7 +553,7 @@
 		- naCount = results.where(:a5=>nil).count
 		- comments = results.where(["c5!=''"]).select("c5 as c, patient_id, a5 as a")
 		- opt_out_comments = results.where(["a5o!=''"]).select("a5o as c, patient_id, a5 as a")
-		= render :partial => 'reports/question.html.haml', :locals => {:title=>"How would you rate the overall expertise of the doctors and staff?", :score=>sums[0][:a5], :results=>results, :counts=>answerCounts, :naCount=>naCount}
+		= render :partial => 'reports/question.html.haml', :locals => {:title=>"Did the doctor and staff provide valuable product information to you, explaining the benefits of our personalized lens technology and how it would improve your vision and lifestyle needs: On Eyeglasses, Lenses and/or Contact lenses?", :score=>sums[0][:a5], :results=>results, :counts=>answerCounts, :naCount=>naCount}
 		= render :partial => 'reports/opt_out_comments.html.haml', :locals => {:comments=>opt_out_comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
 		= render :partial => 'reports/comments.html.haml', :locals => {:comments=>comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
 
@@ -471,27 +561,11 @@
 		- naCount = results.where(:a6=>nil).count
 		- comments = results.where(["c6!=''"]).select("c6 as c, patient_id, a6 as a")
 		- opt_out_comments = results.where(["a6o!=''"]).select("a6o as c, patient_id, a6 as a")
-		= render :partial => 'reports/question.html.haml', :locals => {:title=>"Did the doctor and staff provide valuable product information to you, explaining the benefits of new personalized technology in lenses and how it would improve your vision and lifestyle needs: On Contact Lenses?", :score=>sums[0][:a6], :results=>results, :counts=>answerCounts, :naCount=>naCount}
-		= render :partial => 'reports/opt_out_comments.html.haml', :locals => {:comments=>opt_out_comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
-		= render :partial => 'reports/comments.html.haml', :locals => {:comments=>comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
-
-		- answerCounts = results.group('a7').order('a7 asc').count('a7')
-		- naCount = results.where(:a7=>nil).count
-		- comments = results.where(["c7!=''"]).select("c7 as c, patient_id, a7 as a")
-		- opt_out_comments = results.where(["a7o!=''"]).select("a7o as c, patient_id, a7 as a")
-		= render :partial => 'reports/question.html.haml', :locals => {:title=>"Did the doctor and staff provide valuable product information to you, explaining the benefits of new personalized technology in lenses and how it would improve your vision and lifestyle needs: On Eyeglasses and Lenses?", :score=>sums[0][:a7], :results=>results, :counts=>answerCounts, :naCount=>naCount}
-		= render :partial => 'reports/opt_out_comments.html.haml', :locals => {:comments=>opt_out_comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
-		= render :partial => 'reports/comments.html.haml', :locals => {:comments=>comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
-
-		- answerCounts = results.group('a8').order('a8 asc').count('a8')
-		- naCount = results.where(:a8=>nil).count
-		- comments = results.where(["c8!=''"]).select("c8 as c, patient_id, a8 as a")
-		- opt_out_comments = results.where(["a8o!=''"]).select("a8o as c, patient_id, a8 as a")
-		= render :partial => 'reports/question.html.haml', :locals => {:title=>"How would you rate the selection of fashion frames and the overall value of the products you purchased or browsed in our clinic?", :score=>sums[0][:a8], :results=>results, :counts=>answerCounts, :naCount=>naCount}
+		= render :partial => 'reports/question.html.haml', :locals => {:title=>"How would you rate out selection of fashion frames and additional products?", :score=>sums[0][:a6], :results=>results, :counts=>answerCounts, :naCount=>naCount}
 		= render :partial => 'reports/opt_out_comments.html.haml', :locals => {:comments=>opt_out_comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
 		= render :partial => 'reports/comments.html.haml', :locals => {:comments=>comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
 				
 		%h2 Final Commentary
-		%h3 Is there any addition feedback you would like to give so we can continue to improve to provide you with the best care?
+		%h3 Is there any additional feedback you would like to give so we can continue to improve, working to provide you with the best care possible?
 		- comments = results.where(["c9!=''"]).select("c9 as c, patient_id, n3 as a")
 		= render :partial => 'reports/comments.html.haml', :locals => {:comments=>comments, :scoreLabel=>'Overall NPS', :anonymous=>anonymous}

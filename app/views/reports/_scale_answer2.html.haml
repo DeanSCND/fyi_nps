@@ -1,0 +1,50 @@
+-answers = [0,0,0,0,0,0,0,0,0,0,0]
+
+-i = 0
+-answerCounts.each do |c|
+  -answers[c[0]] = c[1]
+  -i=i+1
+  
+%table.breakdown-table{:cellspacing=>0, :cellpadding=>0}
+  %tr
+    %td.breakdown-cell
+      .answer-bar-na{:style=>"display: inline-block;height: #{10+((naCount/total))*500}px;"}
+        =naCount
+    -i=0
+    %td.blank
+      &nbsp;
+    -answers.each do |c|
+      -if i < 7
+        %td.breakdown-cell-neg
+          .answer-bar-neg{:style=>"display: inline-block;height: #{10+((c/total))*250}px;"}
+            =c
+      -elsif i > 6 && i < 9
+        %td.breakdown-cell-neutral
+          .answer-bar-neutral{:style=>"display: inline-block;height: #{10+((c/total))*250}px;"}
+            =c
+      -else
+        -if c != nil
+          %td.breakdown-cell-pos
+            .answer-bar-pos{:style=>"display: inline-block;height: #{10+((c/total))*250}px;"}
+              =c
+      -i=i+1
+
+  %tr
+    %td.breakdown-label
+      N/A
+    %td.blank
+    -i=0
+    -answers.each do |c|
+      %td.breakdown-label
+        =i
+      -i=i+1
+
+  %tr
+    %td.blank
+    %td.blank 
+    %td.section-label{:colspan=>7}
+      Detractors
+    %td.section-label{:colspan=>2}
+      Neutral
+    %td.section-label{:colspan=>2}
+      Promoters            

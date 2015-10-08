@@ -1,7 +1,11 @@
 class PracticeReport < ActiveRecord::Base
 	belongs_to :clinic, :foreign_key=>:practice_id
 	belongs_to :run
-  
+
+	def self.fyi_median_scores(run_id)
+		PracticeReport.find_by_sql("select median(n1) as n1, median(n2) as n2, median(n3) as n3 from practice_reports where run_id = #{run_id} and stat_type = 'rolling'
+		and practice_id <> 0 and practice_id is not null")
+	end
 
 	def self.summary_report_by_practices
 		run_id = PracticeReport.maximum("run_id")

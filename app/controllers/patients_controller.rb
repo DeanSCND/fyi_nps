@@ -77,6 +77,8 @@ class PatientsController < ApplicationController
 
   # GET /patients/new
   def new
+    @patient_count = Patient.count(:conditions => "run_id = #{params[:run].to_s}")
+
     @patient = Patient.new
     @runs = Run.all    
   end

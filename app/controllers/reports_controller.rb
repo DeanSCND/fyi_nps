@@ -26,7 +26,8 @@ class ReportsController < ApplicationController
       #@fyiNps2 = (((fyiResults.all(:conditions => "n2>8").count.to_f / fyiResults.all(:conditions => "n2 >= 0").count.to_f) * 100) - ((fyiResults.all(:conditions => "n2<7").count.to_f / fyiResults.all(:conditions => "n2 >= 0").count.to_f) * 100)).round(2)
       #@fyiNps3 = (((fyiResults.all(:conditions => "n3>8").count.to_f / fyiResults.all(:conditions => "n3 >= 0").count.to_f) * 100) - ((fyiResults.all(:conditions => "n3<7").count.to_f / fyiResults.all(:conditions => "n3 >= 0").count.to_f) * 100)).round(2)
       
-      fyi_per_stats = PracticeReport.where(run_id: run.id, practice_id: 0, stat_type: "rolling")
+      #fyi_per_stats = PracticeReport.where(run_id: run.id, practice_id: 0, stat_type: "rolling")
+      fyi_per_stats = PracticeReport.fyi_median_scores(run.id)
       @fyiNps1 = fyi_per_stats[0].n1*100
       @fyiNps2 = fyi_per_stats[0].n2*100
       @fyiNps3 = fyi_per_stats[0].n3*100
@@ -37,7 +38,7 @@ class ReportsController < ApplicationController
       #@fyiNpsAvg = ((@fyiNps1 + @fyiNps2 + @fyiNps3)/3)
 
       if type == 'clinics' || type == 'both'
-        SurveyAnswer.select("DISTINCT(practice_id)").where(:run => run).each do |result|
+        SurveyAnswer.select("DISTINCT(practice_id)").where(:run => run, :practice_id => 126).each do |result|
           clinic = Clinic.where(:practice_id=>result.practice_id).first
           logger.debug("Generating report for : " + clinic.name + " :" + clinic.id.to_s)
 

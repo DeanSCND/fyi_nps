@@ -30,7 +30,110 @@ class SurveyResultsController < ApplicationController
 
   # GET /survey_results/new
   def new
-    @survey_result = SurveyResult.new
+    result_count = SurveyAnswer.count(:conditions => "run_id = #{params[:run_id].to_s}")
+    if result_count ==  0
+
+      i = 0
+      run_id = 0
+
+      #puts "PARMS: " + params[:survey_result][:file].to_s
+      #name = params[:survey_result][:file].original_filename
+      directory = 'tmp'
+      path = File.join(directory, "TEMP_RESULTS.csv")
+      csv_path = File.join(directory, "TEMP_RESULTS2.csv")
+      puts "PATH: " + path
+
+      fluid = Fluid::Api.new('dean.skelton@fyidoctors.com', 'Fyidoctors2014?!')
+      count = 1
+      responses = fluid.get_results(date: '2015-09-01', page: count)
+      File.open(path, "wb") { |f| f.write(responses.encode('UTF-8', :invalid => :replace, :undef => :replace)) }
+      #File.open(path, "wb") { |f| f.write(params[:survey_result][:file].read) }
+
+      parsed_file = Roo::CSV.new(path) 
+
+      puts parsed_file.sheet(0).to_csv(csv_path)
+
+      csv_file = File.read(csv_path)
+
+      CSV.parse(csv_file, {:headers => true}) do |row|
+        start_of_results = 20
+        @result = SurveyAnswer.new
+        email = row[start_of_results-6]
+        @patient = Patient.where(:email => email).first
+        if @patient != nil
+          existing = SurveyAnswer.where(:patient_id => @patient.id).first
+          if existing != nil
+            existing.delete
+          end
+          
+          @result.patient_id = @patient.id
+          @result.practice_id = @patient.practice_id
+          logger.debug("PT: " + @patient.id.to_s  )
+          @result.status = row[0]
+          @result.fid = row[1].to_i
+          #@result.created = 
+          @result.ip = row[5]
+          @result.location = row[6]
+          #@result.nps = row[11].to_i
+          #run = Run.where(:name => row[17]).first
+          #if (run == nil)
+          #  logger.debug("OH SNAP. NO RUN FOR THIS. BAILING")
+          #  break;
+          #end
+          #@result.run = run.name
+          @result.run_id = @patient.run.id
+          run_id = @result.run_id
+          @result.collector = row[start_of_results]
+
+          @result.n1 = calculate_score row[start_of_results+1]
+          #@result.n1o = row[start_of_results+30]
+          @result.n2 = calculate_score row[start_of_results+2]
+          #@result.n2o = row[start_of_results+32]
+          @result.n3 = calculate_score row[start_of_results+3]
+          
+          @result.c9 = clean_comment row[start_of_results+4]
+
+          @result.b2 = row[start_of_results+5]
+
+          @result.a1 = calculate_score row[start_of_results+6]
+          @result.c1 = clean_comment row[start_of_results+7]
+          @result.a2 = calculate_score row[start_of_results+8]
+          #@result.b2 = row[start_of_results+10]
+          @result.a3 = calculate_score row[start_of_results+9]
+          #@result.a3o = row[start_of_results+10]
+          @result.c3 = clean_comment row[start_of_results+10]
+          @result.a4 = calculate_score row[start_of_results+11]
+          #@result.a4o = row[start_of_results+15]
+          @result.c4 = clean_comment row[start_of_results+12]
+          @result.a5 = calculate_score row[start_of_results+13]
+          #@result.a5o = row[start_of_results+18]
+          @result.c5 = clean_comment row[start_of_results+14]
+          @result.a6 = calculate_score row[start_of_results+15]
+          #@result.a6o = row[start_of_results+21]
+          @result.c6 = clean_comment row[start_of_results+16]
+
+          #@result.a7 = calculate_score row[start_of_results+23]
+          #@result.a7o = row[start_of_results+24]
+          #@result.c7 = clean_comment row[start_of_results+25]
+          #@result.a8 = calculate_score row[start_of_results+26]
+          #@result.a8o = row[start_of_results+27]
+          #@result.c8 = clean_comment row[start_of_results+28]
+
+
+
+          @result.save
+        end
+        i = i + 1
+      end
+
+      Statistics::Utils.generate_stats_for_run(run_id: run_id)
+    
+    end
+
+    respond_to do |format|
+      format.html { redirect_to runs_path(run_id) }
+      format.json { render action: 'show', status: :created, location: @survey_result }
+    end
   end
 
   # GET /survey_results/1/edit
@@ -39,97 +142,89 @@ class SurveyResultsController < ApplicationController
 
   # POST /survey_results
   # POST /survey_results.json
-  def create
-    i = 0
-    run_id = 0
+  def create_new
+    fluid = Fluid::Api.new('dean.skelton@fyidoctors.com', 'Fyidoctors2014?!')
 
-    puts "PARMS: " + params[:survey_result][:file].to_s
-
-    name = params[:survey_result][:file].original_filename
-    directory = 'tmp'
-    path = File.join(directory, "TEMP_RESULTS.csv")
-    csv_path = File.join(directory, "TEMP_RESULTS2.csv")
-    puts "PATH: " + path
-    File.open(path, "wb") { |f| f.write(params[:survey_result][:file].read) }
-
-    parsed_file = Roo::CSV.new(path) 
-
-    puts parsed_file.sheet(0).to_csv(csv_path)
-
-    csv_file = File.read(csv_path)
-
-    CSV.parse(csv_file, {:headers => true}) do |row|
-      start_of_results = 14
-      @result = SurveyAnswer.new
-      email = row[start_of_results]
-      @patient = Patient.where(:email => email).first
-      if @patient != nil
-        existing = SurveyResult.where(:patient_id => @patient.id).first
-        if existing != nil
-          existing.delete
-        end
-        
-        @result.patient_id = @patient.id
-        @result.practice_id = @patient.practice_id
-        logger.debug("PT: " + @patient.id.to_s  )
-        @result.status = row[0]
-        @result.fid = row[1].to_i
-        #@result.created = 
-        @result.ip = row[5]
-        @result.location = row[6]
-        #@result.nps = row[11].to_i
-        #run = Run.where(:name => row[17]).first
-        #if (run == nil)
-        #  logger.debug("OH SNAP. NO RUN FOR THIS. BAILING")
-        #  break;
-        #end
-        #@result.run = run.name
-        @result.run_id = @patient.run.id
-        run_id = @result.run_id
-        @result.collector = row[start_of_results+6]
-
-        @result.a1 = calculate_score row[start_of_results+7]
-        @result.c1 = clean_comment row[start_of_results+8]
-        @result.a2 = calculate_score row[start_of_results+9]
-        @result.b2 = row[start_of_results+10]
-        @result.a3 = calculate_score row[start_of_results+11]
-        @result.a3o = row[start_of_results+12]
-        @result.c3 = clean_comment row[start_of_results+13]
-        @result.a4 = calculate_score row[start_of_results+14]
-        @result.a4o = row[start_of_results+15]
-        @result.c4 = clean_comment row[start_of_results+16]
-        @result.a5 = calculate_score row[start_of_results+17]
-        @result.a5o = row[start_of_results+18]
-        @result.c5 = clean_comment row[start_of_results+19]
-        @result.a6 = calculate_score row[start_of_results+20]
-        @result.a6o = row[start_of_results+21]
-        @result.c6 = clean_comment row[start_of_results+22]
-        @result.a7 = calculate_score row[start_of_results+23]
-        @result.a7o = row[start_of_results+24]
-        @result.c7 = clean_comment row[start_of_results+25]
-        @result.a8 = calculate_score row[start_of_results+26]
-        @result.a8o = row[start_of_results+27]
-        @result.c8 = clean_comment row[start_of_results+28]
-
-        @result.n1 = calculate_score row[start_of_results+29]
-        @result.n1o = row[start_of_results+30]
-        @result.n2 = calculate_score row[start_of_results+31]
-        @result.n2o = row[start_of_results+32]
-        @result.n3 = calculate_score row[start_of_results+33]
-
-        @result.c9 = clean_comment row[start_of_results+34]
-
-        @result.save
-      end
-      i = i + 1
-    end
-
-    Statistics::Utils.generate_stats_for_run(run_id: run_id)
+    count = 1
+    responses = fluid.get_results(date: '2015-08-15', page: count)
     
-    respond_to do |format|
-      format.html { redirect_to runs_path(run_id) }
-      format.json { render action: 'show', status: :created, location: @survey_result }
+    directory = 'tmp'
+    path = File.join(directory, "RES.json")
+    File.open(path, "wb") { |f| f.write(JSON.pretty_generate(responses)) }
+
+    puts "GETTING: #{count.to_s}" 
+    while responses["next"] != nil
+      count = count+1
+      responses["results"].each do |r|
+        @result = SurveyAnswer.new
+        email = r["_invite_email"]
+        @patient = Patient.where(:email => email).first
+
+        @patient = Patient.where(:email => email).first
+        if @patient != nil
+          existing = SurveyAnswer.where(:patient_id => @patient.id).first
+          if existing != nil
+            existing.delete
+          end
+          puts r.to_json.to_s
+          @result.patient_id = @patient.id
+          @result.practice_id = @patient.practice_id
+          @result.status = r["_completed"]==1 ? "COMPLETE" : "INCOMPLETE"
+          @result.fid = r["_id"]
+          #@result.created = 
+          @result.ip = r["_ip_address"]
+
+          @result.run_id = @patient.run.id
+          run_id = @result.run_id
+          @result.collector = r["_collector_id"]
+
+          @result.a1 = r["3m9uzuklnq"]
+          @result.c1 = clean_comment r["Mg2f0afloz"]
+          @result.a2 = r["Vdfalzxewc"]
+          @result.b2 = r["R7whigtrwx"]
+          puts "b2:" + r["Vfnkuvxw1m"].to_s
+          @result.a3 = r["Vfnkuvxw1m"][0]
+          @result.a3o = clean_comment r["Vfnkuvxw1m"][1]
+          @result.c3 = clean_comment r["81htq30gsg"]
+          @result.a4 = r["Yoy6nwsgtd"][0]
+          @result.a4o = clean_comment r["Yoy6nwsgtd"][1]
+          @result.c4 = r["Uyvctv6eyi"]
+          @result.a5 = r["7gsdso3asd"][0]
+          @result.a5o = clean_comment r["7gsdso3asd"][1]
+          @result.c5 = clean_comment r["Uyvctv6eyi"]
+          @result.a6 = r["Qvw62xswtx"][0]
+          @result.a6o = clean_comment r["Qvw62xswtx"][1]
+          @result.c6 = clean_comment r["Ucldeseaci"]
+          @result.a7 = r["Tygvpk57io"][0]
+          @result.a7o = clean_comment r["Tygvpk57io"][1]
+          @result.c7 = clean_comment r["Ty5hmptect"]
+          @result.a8 = r["8a5zrfgnt7"][0]
+          @result.a8o = clean_comment r["8a5zrfgnt7"][0]
+          @result.c8 = clean_comment r["Fgmernmdoa"]
+
+          @result.n1 = r["Dahs7lmu5q"][0]
+          @result.n1o = clean_comment r["Dahs7lmu5q"][1]
+          @result.n2 = r["Edrsatbzsa"][0]
+          @result.n2o = clean_comment r["Edrsatbzsa"][1]
+          @result.n3 = r["4dd2lseqmp"]
+
+          @result.c9 = clean_comment r["Qtwlreqrik"]
+        end        
+      end
+      responses = fluid.get_results(date: '2015-08-01', page: count)
+
+      puts "GETTING: #{count.to_s}"
     end
+
+    render :json => JSON.pretty_generate(responses)
+
+  end
+
+
+  # POST /survey_results
+  # POST /survey_results.json
+  def create
+
   end
 
   # PATCH/PUT /survey_results/1

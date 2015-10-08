@@ -1,10 +1,11 @@
 module Fluid
   class Api
     include HTTParty
-    base_uri 'fluidsurveys.com'
-
+    base_uri = 'fluidsurveys.com'
+    
     def initialize(u, p)
       @auth = {:username => u, :password => p}
+      @survey_id = '859623'
     end
 
     def get_results(date:, page:)
@@ -12,17 +13,18 @@ module Fluid
         :basic_auth => @auth,
         :hehaders => { 'Content-Type' => 'application/json' }
       }      
+      puts "URL: http://fluidsurveys.com/api/v3/surveys/#{@survey_id}/csv/?_created_at>#{date}&comma_separated=true"
+      resp = self.class.get("http://fluidsurveys.com/api/v3/surveys/#{@survey_id}/csv/?_created_at>#{date}&comma_separated=true", options)
 
-      resp = self.class.get("/api/v3/surveys/537808/responses/?_created_at>#{date}&page=#{page}", options)
+      return resp.body
+
     end      
 
     def create_collector(id, name)
       Rails.logger.debug("POSTING: " + name + " for " + id.to_s)
       options = {
-        :basic_auth => @auth,
-        :hehaders => { 'Content-Type' => 'application/json' }
       }
-      resp = self.class.post('/api/v2/surveys/' + id.to_s + '/collectors/?name=' + name, options)
+      resp = self.class.post('https://stream.watsonplatform.net/speech-to-text/api/v1/', options)
       Rails.logger.debug("RESPONSE: " + resp.to_s)
       Rails.logger.debug("DONE POSTING COLLECTOR")
     end
