@@ -9,59 +9,12 @@ class PatientsController < ApplicationController
   # GET /patients
   # GET /patients.json
   def index
-    @run = params[:run]
-    run = Run.where(:id => @run).first
+    run_id = params[:run]
+    @run = Run.where(:id => run_id).first
 
-    fluid = Fluid::Api.new('dean.skelton@fyidoctors.com', 'Fyidoctors2014?!')
-    fluid.create_collector(537808, "COLLECTOR_" + run.name)
-    if(params[:date] != nil) 
-      date = Date.parse(params[:date])
-      logger.debug("RUNING FOR DATE: " + params[:date])
-      @patients = Patient.select('DISTINCT patients.name, email, clinics.practice_id as "Practice Id", clinics.name as "Practice Name", replace(to_char("visitDate", \'Month dd, YYYY\'), \'  \', \' \') as "Visit Date", runs.name as "RUN"').where(:run_id => run.id).where("patients.created_at > ?", date).joins(:clinic).joins(:run)
-    else
-      count = Patient.where(:run_id => run.id).count()
-      batches = (count.to_f/4999.to_f).ceil
-      logger.debug("COUNT: " + count.to_s + "  :  " + batches.to_s)
+    @files = export_for_survey(@run)
 
-      last = 0
-      for i in 1..batches
-        logger.debug("LOOP " + i.to_s)
-        list_id = fluid.create_list(run.name + "_" + i.to_s)
-
-        @patients = Patient.select('DISTINCT patients.id as id, patients.name, email, clinics.practice_id as "Practice Id", clinics.name as "Practice Name", replace(to_char("visitDate", \'Month dd, YYYY\'), \'  \', \' \') as "Visit Date", runs.name || \'_' + i.to_s + '\' as "RUN"').where(:run_id => run.id).where("patients.id > ?", last.to_s).joins(:clinic).joins(:run).limit(4999).order("id ASC")
-        #@patients = Patient.where("run_id = ?", run.id.to_s).where("id > ?", last.to_s).limit(4999).order("id ASC")
-        logger.debug("FETCHED: " + @patients.count.to_s)
-        last = @patients.last.id
-        logger.debug("LAST: " + last.to_s)
-        FileUtils.mkdir_p("/Users/dean/Work/FYi/Net Promoter Score/patients/" + run.name)
-        importFile = "/Users/dean/Work/FYi/Net Promoter Score/patients/" + run.name + "/fluid-import_" + i.to_s + ".csv"
-        File.open(importFile, "w"){|f| f << @patients.to_csv}
-
-        #patient = @patients.first
-        #clinic = Clinic.where(:practice_id => patient.practice_id).first
-        
-
-        #{}"custom_Practice Id" => clinic.id,
-        #{}"custom_Practice Name" => clinic.name
-
-        #contact2 = {
-        #  "id" => patient.id,
-        #  "name" => patient.name,
-        #  "email" => patient.email,
-        #  "custom_RUN" => run.name + "_" + i.to_s
-        #}.to_json
-
-        #if params[:fluid] != nil
-        #listStr = fluid.create_contact_in_list(contact2,list_id)
-        #logger.debug("RAW: " + listStr.to_s)
-        #listJson = JSON.parse(listStr)
-        #end
-
-
-      end
-     #@patients = Patient.select('patients.name, email, clinics.practice_id as "Practice Id", clinics.name as "Practice Name", replace(to_char("visitDate", \'Month dd, YYYY\'), \'  \', \' \') as "Visit Date", runs.name as "RUN"').where(:run_id => run.id).joins(:clinic).joins(:run)       
-
-    end
+    puts "FILES: " + @files.to_s
 
     respond_to do |format|
       format.html
@@ -77,6 +30,7 @@ class PatientsController < ApplicationController
 
   # GET /patients/new
   def new
+    @run = Run.find(params["run"])
     @patient_count = Patient.count(:conditions => "run_id = #{params[:run].to_s}")
 
     @patient = Patient.new
@@ -90,7 +44,7 @@ class PatientsController < ApplicationController
   # POST /patients
   # POST /patients.json
   def create    
-    fluid = Fluid::Api.new('dean.skelton@fyidoctors.com', 'Fyidoctors2013')
+    fluid = Fluid::Api.new('dean.skelton@fyidoctors.com', 'Fyidoctors2014?!')
     
     #if params[:fluid] != nil
     #  respStr = fluid.create_list(params[:patient][:run]).to_json
@@ -102,10 +56,10 @@ class PatientsController < ApplicationController
     #end    
 
     run = Run.where(:id => params[:patient][:run]).first
-    #if run == nil
-    #  logger.debug("NO RUN CREATED")
-    #  return
-    #end
+    if run == nil
+      logger.debug("NO RUN CREATED")
+      return
+    end
 
     puts "PARMS: " + params[:patient][:file].to_s
 
@@ -150,43 +104,7 @@ class PatientsController < ApplicationController
         #@patient.run = params[:patient][:run]
         @patient.run_id = run.id
         clinic = Clinic.where(:practice_id => @patient.practice_id).first
-      
-        logger.debug("CREATING CONTACT" + @patient.name)
-      
-        contact = {
-          "name" => @patient.name,
-          "email" => @patient.email,
-          "custom_RUN" => run.name,
-          "custom_Practice Id" => @patient.practice_id,
-          "custom_Practice Name" => clinic.name,
-          "custom_Visit Date" => @patient.visitDate.strftime("%B %e,  %Y")
-        }.to_json
-        logger.debug("POSTING: " + contact.to_s)
-      
-        if params[:fluid] != nil
-          contactStr = fluid.create_contact(contact).body
-          logger.debug("CONTACT RETURN: " + contactStr.to_s)
-          contactJson = JSON.parse(contactStr)
-          logger.debug("CONTACT ID : " + contactJson["id"].to_s)
-          @patient.fid = contactJson["id"]
-          logger.debug("RAW: " + contactStr.to_s)
-        end
-        
-        #contact2 = {
-        #  "id" => @patient.fid,
-        #  "name" => @patient.name,
-        #  "email" => @patient.email,
-        #  "custom_RUN" => @patient.run,
-        #  "custom_Practice Id" => @patient.practice_id,
-        #  "custom_Practice Name" => clinic.name
-        #}.to_json
-
-        #if params[:fluid] != nil
-        #  listStr = fluid.create_contact_in_list(contact2,list_id).body
-        #  logger.debug("RAW: " + listStr)
-        #  listJson = JSON.parse(listStr)
-        #end
-        
+              
         @patient.save
       else
         logger.debug("Skipping " + row[3])
@@ -236,5 +154,59 @@ class PatientsController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def patient_params
       params.require(:patient).permit(:name, :email, :practice_id, :practice_name, :visitDate, :run)
+    end
+
+    def export_for_survey(run)
+      _BATCH_SIZE_ = 20
+
+      files = []
+
+      fluid = Fluid::Api.new('dean.skelton@fyidoctors.com', 'Fyidoctors2014?!')
+      puts "FOR RUN: " + run.name
+      collector_created = fluid.create_collector(859623, "COLLECTOR_" + run.name)
+      puts "collector_created: " + collector_created.to_s
+
+      fluid.clear_lists()
+
+      if(params[:date] != nil) 
+        date = Date.parse(params[:date])
+        logger.debug("RUNING FOR DATE: " + params[:date])
+        @patients = Patient.select('DISTINCT patients.name, email, clinics.practice_id as "Practice Id", clinics.name as "Practice Name", replace(to_char("visitDate", \'Month dd, YYYY\'), \'  \', \' \') as "Visit Date", runs.name as "RUN"').where(:run_id => run.id).where("patients.created_at > ?", date).joins(:clinic).joins(:run)
+      else
+        count = Patient.where(:run_id => run.id).count()
+        batches = (count.to_f/_BATCH_SIZE_.to_f).ceil
+        logger.debug("COUNT: " + count.to_s + "  :  " + batches.to_s)
+
+        last = 0
+        for i in 1..batches
+          logger.debug("LOOP " + i.to_s)
+          list_id = fluid.create_list(run.name + "_" + i.to_s)
+
+          @patients = Patient.select('DISTINCT patients.id as id, patients.name, email, clinics.practice_id as "Practice Id", clinics.name as "Practice Name", replace(to_char("visitDate", \'Month dd, YYYY\'), \'  \', \' \') as "Visit Date", runs.name || \'_' + i.to_s + '\' as "RUN"').where(:run_id => run.id).where("patients.id > ?", last.to_s).joins(:clinic).joins(:run).limit(_BATCH_SIZE_).order("id ASC")
+          #@patients = Patient.where("run_id = ?", run.id.to_s).where("id > ?", last.to_s).limit(_BATCH_SIZE_).order("id ASC")
+          logger.debug("FETCHED: " + @patients.count.to_s)
+          last = @patients.last.id
+          logger.debug("LAST: " + last.to_s)
+          FileUtils.mkdir_p("/Users/dean/Work/FYi/Net Promoter Score/patients/" + run.name)
+          importFile = "/Users/dean/Work/FYi/Net Promoter Score/patients/" + run.name + "/fluid-import_" + i.to_s + ".csv"
+          File.open(importFile, "w"){|f| f << @patients.to_csv}
+          file = {
+            "file" => importFile,
+            "contact_list" => run.name + "_" + i.to_s
+          }
+
+          files.push(file)
+
+          #@patients.each do |patient|
+          #  puts "PAT: " + patient.to_s
+          #  practice = Clinic.where(:practice_id => patient.practice_id).first
+          #  fluid.create_contact_in_list(patient, practice.name, run.name, list_id)
+          #end        
+        end
+        #@patients = Patient.select('patients.name, email, clinics.practice_id as "Practice Id", clinics.name as "Practice Name", replace(to_char("visitDate", \'Month dd, YYYY\'), \'  \', \' \') as "Visit Date", runs.name as "RUN"').where(:run_id => run.id).joins(:clinic).joins(:run)       
+
+        return files
+
+      end
     end
 end

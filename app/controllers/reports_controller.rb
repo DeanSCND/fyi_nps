@@ -13,32 +13,25 @@ class ReportsController < ApplicationController
       logger.debug("Running report for Run: " + run.name + " :" + run.id.to_s)
  
       quarter_runs = []
-      qRuns = Run.where("id > ?", 13).where("quarter <> ''")
+      qRuns = Run.select("quarter, max(id) as qmarker").where("id > 13").group(:quarter).order("qmarker ASC")
+
       qRuns.each do |run|
-        quarter_runs << run.id
+        quarter_runs << run.qmarker
       end
 
-      logger.debug(quarter_runs)
+      logger.debug("QRUNS: " + quarter_runs.to_s)
 
-      #fyiResults = PracticeReport.where(:practice_id=>0, :run_id=>run.id, :stat_type=>"rolling").first
-      #SurveyAnswer.where(:status=>"Complete")
-      #@fyiNps1 = (((fyiResults.all(:conditions => "n1>8").count.to_f / fyiResults.all(:conditions => "n1 >= 0").count.to_f) * 100) - ((fyiResults.all(:conditions => "n1<7").count.to_f / fyiResults.all(:conditions => "n1 >= 0").count.to_f) * 100)).round(2)
-      #@fyiNps2 = (((fyiResults.all(:conditions => "n2>8").count.to_f / fyiResults.all(:conditions => "n2 >= 0").count.to_f) * 100) - ((fyiResults.all(:conditions => "n2<7").count.to_f / fyiResults.all(:conditions => "n2 >= 0").count.to_f) * 100)).round(2)
-      #@fyiNps3 = (((fyiResults.all(:conditions => "n3>8").count.to_f / fyiResults.all(:conditions => "n3 >= 0").count.to_f) * 100) - ((fyiResults.all(:conditions => "n3<7").count.to_f / fyiResults.all(:conditions => "n3 >= 0").count.to_f) * 100)).round(2)
-      
-      #fyi_per_stats = PracticeReport.where(run_id: run.id, practice_id: 0, stat_type: "rolling")
       fyi_per_stats = PracticeReport.fyi_median_scores(run.id)
       @fyiNps1 = fyi_per_stats[0].n1*100
       @fyiNps2 = fyi_per_stats[0].n2*100
       @fyiNps3 = fyi_per_stats[0].n3*100
 
-      #@fyiNps1 = (fyiResults.n1*100).round(2)
-      #@fyiNps2 = (fyiResults.n2*100).round(2)
-      #@fyiNps3 = (fyiResults.n3*100).round(2)
-      #@fyiNpsAvg = ((@fyiNps1 + @fyiNps2 + @fyiNps3)/3)
+      visit_dates = Patient.find_by_sql('select min("visitDate") as start, max("visitDate") as end from patients where run_id = ' + run.id.to_s).first 
+      @visit_range = "#{visit_dates.start.strftime("%B %e, %Y")} to #{visit_dates.end.strftime("%B %e, %Y")}"
 
       if type == 'clinics' || type == 'both'
-        SurveyAnswer.select("DISTINCT(practice_id)").where(:run => run, :practice_id => 126).each do |result|
+        #SurveyAnswer.select("DISTINCT(practice_id)").where(:run => run, :practice_id => 156).each do |result|
+        SurveyAnswer.select("DISTINCT(practice_id)").where(:run => run).each do |result|
           clinic = Clinic.where(:practice_id=>result.practice_id).first
           logger.debug("Generating report for : " + clinic.name + " :" + clinic.id.to_s)
 

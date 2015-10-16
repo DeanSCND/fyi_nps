@@ -35,6 +35,8 @@ $(function() {
       $('#year_label').val(parts[1])
 
       date = new Date(Number(parts[1]), new Date(Date.parse(parts[0] +" 1, 2012")).getMonth());
+      date = new Date(new Date(date).setMonth(date.getMonth()-2));
+
       var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
       var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 

@@ -1,3 +1,15 @@
-Exporting Patients for 
-=@run
-
+%h2
+  Exporting Patients for 
+  =@run.name
+%br
+%h2
+  Generated the following files. Upload them into the lists created in FluidSurvyes Accordingly.
+%hr
+- @files.each do |file|
+  %p
+    File: 
+    = file["file"]
+  %p
+    List: 
+    = file["contact_list"]
+  %hr

@@ -21,12 +21,46 @@ module Fluid
     end      
 
     def create_collector(id, name)
-      Rails.logger.debug("POSTING: " + name + " for " + id.to_s)
+      # check for collector's existence first
+      puts "CREATING COLLECTOR:  " + name
+
       options = {
+        :basic_auth => @auth,
+        :hehaders => { 'Content-Type' => 'application/json' }
       }
-      resp = self.class.post('https://stream.watsonplatform.net/speech-to-text/api/v1/', options)
+
+      resp = self.class.get('http://fluidsurveys.com/api/v3/surveys/' + id.to_s + '/collectors/?name=' + name, options)
+      collectors = JSON.parse(resp.to_json)
+
+      collectors["results"].each do |collector|
+        if collector["name"] == name
+          return false
+        end
+      end
+
+      resp = self.class.post('http://fluidsurveys.com/api/v3/surveys/' + id.to_s + '/collectors/?name=' + name, options)
       Rails.logger.debug("RESPONSE: " + resp.to_s)
-      Rails.logger.debug("DONE POSTING COLLECTOR")
+      
+      return true
+    end
+
+    def clear_lists() 
+      puts "CLEARING LISTS"
+      options = {
+        :basic_auth => @auth,
+        :hehaders => { 'Content-Type' => 'application/json' }
+      }
+      resp = self.class.get('http://fluidsurveys.com/api/v3/contact-lists/', options)
+      lists = JSON.parse(resp.to_json)
+
+      lists["results"].each do |list|
+        puts "DELETING: " + list["name"]
+        if list["name"].include? "_RUN_"
+          resp = self.class.delete('http://fluidsurveys.com/api/v3/contact-lists/'+list["id"].to_s+'/', options)
+          puts "DELETE: " + resp.to_s
+        end
+      end
+
     end
 
     def create_list(name)
@@ -40,66 +74,48 @@ module Fluid
       }
       #options = { :body => {:contact => text}, :basic_auth => @auth }
       Rails.logger.debug("POSTING CLIST: " + name)
-      resp = self.class.post('/api/v3/contact-lists/', options)
+      resp = self.class.post('http://fluidsurveys.com/api/v3/contact-lists/', options)
       Rails.logger.debug("RESPONSE: " + resp.to_s)
       val = JSON.parse(resp.to_json)
-      list_id = val["id"]
+      
+      if val["error"] != nil
+        puts "List Exists"
+        list_id = nil
+      else
+        list_id = val["id"]
+      end
 
-      Rails.logger.debug("DONE POSTING CLIST")
+      Rails.logger.debug("DONE POSTING CLIST : " + list_id.to_s)
 
       return list_id
     end
     
-    def create_contact_in_list(patient, run_name, list_id)
-     
-      contact = {
-            "name"=> patient.name, 
-            "email"=> patient.email, 
-            "custom"=>[
-                {
-                    "Practice Id"=> patient.practice_id.to_s
-                }, 
-                {
-                    "RUN"=> patient.RUN
-                }, 
-                {
-                    "Practice Name"=> patient.practice_name
-                }, 
-                {
-                    "Visit Date"=> patient.visit_date
-                }
-            ]
-      }
-      
+    def create_contact_in_list(patient, practice_name, run_name, list_id)
+      puts "PUTTING: " + patient.to_s
+
+      contact = { 
+        "name"=> patient.name, 
+        "email"=> patient.email,
+        "custom_run": run_name,
+        "custom_Practice Id" => patient.practice_id,
+        "custom_Practice Name" => practice_name,
+        "custom_Visit Date" => patient.visitDate.strftime("%B %e,  %Y")
+      }    
       options = {
-        :body => contact.to_json,
         :basic_auth => @auth,
-        :headers => { 'Content-Type' => 'application/json' }
+        :headers => { 'Content-Type' => 'application/json' },
+        :body => contact.to_json
       }
-      #options = { :body => {:contact => text}, :basic_auth => @auth }
+      puts 'URL : http://fluidsurveys.com/api/v2/contact-lists/' + list_id.to_s + '/contacts/'
       Rails.logger.debug("POSTING contact: " + options.to_json)
-      resp1 = self.class.post('/api/v3/contacts/', options)
+      resp1 = self.class.post('http://fluidsurveys.com/api/v2/contact-lists/' + list_id.to_s + '/contacts/', options)
       Rails.logger.debug("RESPONSE: " + resp1.to_json)
 
       response_json = JSON.parse(resp1.to_json)
-
-      if response_json["id"] != nil 
-        options = {
-          :basic_auth => @auth,
-          :headers => { 'Content-Type' => 'application/xml' }
-        }
-
-        contact_id = response_json["id"]
-        Rails.logger.debug("ADDING TO LIST")
-        resp2 = self.class.post('/api/v3/contact-lists/' + list_id.to_s + '/contacts/?id=' + contact_id.to_s, options)
-        Rails.logger.debug("RESPONSE: " + resp2.to_json)
-      else
-          log = Log.new
-          log.type = "FLUID_CONTACT"
-          log.message = "Patient with email " + patient.email + " not created: " + response_json["error"]
-          log.save
+      puts "RETURN: " + response_json.to_s
+      if response_json["success"] == false
+        puts "ERROR Creating contact"
       end
-
       return resp1
     end
     

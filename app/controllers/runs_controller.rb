@@ -30,6 +30,7 @@ class RunsController < ApplicationController
     end_date = Time.parse(run_params["end_date"])
 
     @run.month = "Visit " + start_date.strftime("%B") + " " + start_date.day.to_s + " - " + end_date.strftime("%B") + " " + end_date.day.to_s
+    @run.month_name = start_date.strftime("%B")
     respond_to do |format|
       if @run.save
         format.html { redirect_to @run, notice: 'Run was successfully created.' }
@@ -77,6 +78,6 @@ class RunsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def run_params
-      params.require(:run).permit(:name, :month, :year, :start_date, :end_date, :quarter)
+      params.require(:run).permit(:name, :month, :month_name, :year, :start_date, :end_date, :quarter, :fiscal_year)
     end
 end

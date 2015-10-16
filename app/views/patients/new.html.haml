@@ -6,8 +6,8 @@
 		%br
 		= f.file_field :file
 		%br
-		Run: 
-		= f.select :run, @runs.map{|m| [m.name, m.id]}, :selected => params[:run]
+		= "For Run: " + @run.name
+		= f.hidden_field :run, :value=>@run.id
 		%br
 		Create in Fluid
 		= check_box_tag 'fluid'

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150410003601) do
+ActiveRecord::Schema.define(version: 20151009041725) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -125,6 +125,8 @@ ActiveRecord::Schema.define(version: 20150410003601) do
     t.string   "start_date"
     t.string   "end_date"
     t.string   "quarter"
+    t.string   "fiscal_year"
+    t.string   "month_name"
   end
 
   create_table "survey_answers", force: true do |t|

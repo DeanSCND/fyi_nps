@@ -193,8 +193,7 @@
 			- if request.format != "application/doc" && export == false
 				= link_to "Export Report", request.env['PATH_INFO']+".doc", :class=>'btn btn-primary pull-right'
 		%h2
-			=clinic.name
-			= " - " + run.month + ", " + run.year
+			= "#{clinic.name} - For Visits: #{@visit_range}" 
 		%p
 			-if reportType == "group"
 				Group ID: #{clinic.id}
@@ -350,14 +349,14 @@
 
 		%br
 		%h3 NPS Breakdown - Exams
-		- answerCounts = results.group('n2').order('n2 asc').count('n2')
+		- answerCounts = results.where('n2 is not null').group('n2').order('n2 asc').count('n2')
 		- naCount = results.where(:n2=>nil).count
 
 		= render :partial => 'reports/scale_answer2.html.haml', :locals => {:answerCounts=>answerCounts, :total=>results.count.to_f, :naCount=>naCount}
 
 		%br										
 		%h3 NPS Breakdown - Overall
-		- answerCounts = results.group('n3').order('n3 asc').count('n3')
+		- answerCounts = results.where('n3 is not null').group('n3').order('n3 asc').count('n3')
 		- naCount = results.where(:n3=>nil).count
 
 		= render :partial => 'reports/scale_answer2.html.haml', :locals => {:answerCounts=>answerCounts, :total=>results.count.to_f, :naCount=>naCount}
@@ -373,6 +372,7 @@
 			- stats_rolling = PracticeReport.where(:practice_group_id=>clinic.id).where(:run_id=>quarter_runs).where(:stat_type=>'rolling').order(run_id: :asc)
 		-else
 			- stats_rolling = PracticeReport.where(:practice_id=>clinic.practice_id).where(:run_id=>quarter_runs).where(:stat_type=>'rolling').order(run_id: :asc)
+		return
 		.trend-section
 			%table.trend-table
 				%tr
@@ -391,7 +391,7 @@
 					- run = Run.find(stat.run_id)
 					%tr
 						%td.trend-table-cell
-							= run.quarter
+							= 'Quarter ' + run.quarter + ', ' + run.fiscal_year
 						%td.trend-table-cell
 							=(stat.response_rate*100).round(2).to_s + "%"
 						%td.trend-table-cell

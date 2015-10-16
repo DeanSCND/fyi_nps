@@ -2,9 +2,10 @@
 
 %table.standard-table
 	%tr
+		%th	Patients
 		%th Responses
 		%th Name
-		%th Run Over
+		%th Visit Date Range
 		%th
 		%th
 		%th
@@ -12,13 +13,16 @@
 	- @runs.each do |run|
 		- @patient_count = Patient.count(:conditions => "run_id = #{run.id.to_s}")
 		- @result_count = SurveyAnswer.count(:conditions => "run_id = #{run.id.to_s}")
-
+		- @visit_dates = Patient.find_by_sql('select min("visitDate") as start, max("visitDate") as end from patients where run_id = ' + run.id.to_s).first
 		%tr
+			%td= @patient_count
 			%td= @result_count
 			%td= run.name
-			%td= run.month + ", " + run.year
+			%td
+				-if @visit_dates.start != nil
+					= "#{@visit_dates.start.strftime('%B %e, %Y')} to #{@visit_dates.end.strftime('%B %e, %Y')}" 
 			%td= link_to 'Edit', edit_run_path(run), :class=>'btn btn-primary btn-sm'
-			%td= link_to 'Destroy', run, :method => :delete, :data => { :confirm => 'Are you sure?' }, :class=>'btn btn-danger btn-sm'
+			%td= link_to 'Destroy', run, :method => :delete, :data => { :confirm => 'Are you sure?' }, :class=>'btn btn-danger btn-sm hidden' 
 			%td
 				.btn-group
 					%button.btn.btn-success.btn-sm.dropdown-toggle{:type=>"button", :data=>{:toggle=>'dropdown'}}
@@ -26,15 +30,15 @@
 						%span.caret
 					%ul.dropdown-menu{:role=>"menu"}
 						%li
-							%a{:href=>"#{new_patient_path}?run=#{run.id}"}
+							%a{:href=>"#{new_patient_path}?run=#{run.id}", :class=>(@patient_count>0 ? 'hidden' : '')}
 								Load New
 						%li
-							%a{:href=>"#{patients_path}?run=#{run.id}"}
+							%a{:href=>"#{patients_path}?run=#{run.id}", :class=>(@patient_count==0 ? 'hidden' : '')}
 								Export for Survey
-			%td= link_to 'Load Results', new_survey_result_path(:run_id=>run.id), :class=>'btn btn-primary btn-sm'
+			%td= link_to 'Load Results', new_survey_result_path(:run_id=>run.id), :class=>'btn btn-primary btn-sm ' + (@patient_count>0 ? 'disabled' : '') 
 			%td
 				.btn-group
-					%button.btn.btn-success.btn-sm.dropdown-toggle{:type=>"button", :data=>{:toggle=>'dropdown'}}
+					%button.btn.btn-success.btn-sm.dropdown-toggle{:class => (@result_count==0 ? 'disabled' : ''), :type=>"button", :data=>{:toggle=>'dropdown'}}
 						Reports
 						%span.caret
 					%ul.dropdown-menu{:role=>"menu"}
@@ -47,10 +51,10 @@
 						%li
 							%a{:href=>"#{run_clinics_reports_path(run.id)}?type=both"}
 								Combined										
-						%li
+						%li.hidden
 							%a{:href=>"#{new_run_statistic_path(run.id)}"}
 								Generate Statistics
-			%td= link_to 'Distribute', new_run_distribution_path(run), :class=>'btn btn-primary btn-sm'
+			%td= link_to 'Distribute', new_run_distribution_path(run), :class=>'btn btn-primary btn-sm ' + (@result_count==0 ? 'disabled' : '')
 			-if ((run.id > 4 && run.id < 7) || run.id > 9) 
 				-if Winner.where(:run_id => run.id).first == nil
 					%td= link_to 'Draw', run_draws_path(run), :class=>'btn btn-primary btn-sm'
