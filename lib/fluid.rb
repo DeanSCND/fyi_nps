@@ -8,16 +8,15 @@ module Fluid
       @survey_id = '859623'
     end
 
-    def get_results(date:, page:)
+    def get_results(date)
       options = {
         :basic_auth => @auth,
         :hehaders => { 'Content-Type' => 'application/json' }
       }      
       puts "URL: http://fluidsurveys.com/api/v3/surveys/#{@survey_id}/csv/?_created_at>#{date}&comma_separated=true"
       resp = self.class.get("http://fluidsurveys.com/api/v3/surveys/#{@survey_id}/csv/?_created_at>#{date}&comma_separated=true", options)
-
+     
       return resp.body
-
     end      
 
     def create_collector(id, name)
@@ -96,7 +95,7 @@ module Fluid
       contact = { 
         "name"=> patient.name, 
         "email"=> patient.email,
-        "custom_run": run_name,
+        "custom_run" => run_name,
         "custom_Practice Id" => patient.practice_id,
         "custom_Practice Name" => practice_name,
         "custom_Visit Date" => patient.visitDate.strftime("%B %e,  %Y")
