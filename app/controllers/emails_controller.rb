@@ -10,8 +10,8 @@ class EmailsController < ApplicationController
         clinic = Clinic.where(:practice_id=>result.practice_id).first
         logger.debug("Sending report for : " + clinic.name + " :" + clinic.id.to_s)
 
-      	reportFile1 = File.read("/Users/adrian/Documents/work/FYI/Net Promoter Score/reports/" + run.name + "/clinics/report_" + clinic.practice_id.to_s + ".pdf")
-        reportFile2 = File.read("/Users/adrian/Documents/work/FYI/Net Promoter Score/reports/" + run.name + "/clinics/report_" + clinic.practice_id.to_s + "_with_emails.pdf")
+      	reportFile1 = File.read("#{Rails.configuration.path}reports/" + run.name + "/clinics/report_" + clinic.practice_id.to_s + ".pdf")
+        reportFile2 = File.read("#{Rails.configuration.path}reports/" + run.name + "/clinics/report_" + clinic.practice_id.to_s + "_with_emails.pdf")
 
   		m = Mandrill::API.new # All official Mandrill API clients will automatically pull your API key from the environment
 

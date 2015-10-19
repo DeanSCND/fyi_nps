@@ -44,22 +44,28 @@ module Fluid
     end
 
     def clear_lists() 
+      url = 'http://fluidsurveys.com/api/v3/contact-lists/'
       puts "CLEARING LISTS"
-      options = {
-        :basic_auth => @auth,
-        :hehaders => { 'Content-Type' => 'application/json' }
-      }
-      resp = self.class.get('http://fluidsurveys.com/api/v3/contact-lists/', options)
-      lists = JSON.parse(resp.to_json)
 
-      lists["results"].each do |list|
-        puts "DELETING: " + list["name"]
-        if list["name"].include? "_RUN_"
-          resp = self.class.delete('http://fluidsurveys.com/api/v3/contact-lists/'+list["id"].to_s+'/', options)
-          puts "DELETE: " + resp.to_s
+      while url != nil do
+        options = {
+          :basic_auth => @auth,
+          :hehaders => { 'Content-Type' => 'application/json' }
+        }
+        resp = self.class.get(url, options)
+        lists = JSON.parse(resp.to_json)
+
+        puts resp.to_s
+        url = resp["next"]
+
+        lists["results"].each do |list|
+          puts "DELETING: " + list["name"]
+          if list["name"].include? "_RUN_"
+            resp = self.class.delete('http://fluidsurveys.com/api/v3/contact-lists/'+list["id"].to_s+'/', options)
+            puts "DELETE: " + resp.to_s
+          end
         end
       end
-
     end
 
     def create_list(name)
