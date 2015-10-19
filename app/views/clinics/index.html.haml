@@ -1,5 +1,7 @@
 %h1 Listing clinics
-
+= link_to 'New Clinic', new_clinic_path
+%br
+%br
 %table
   %tr
     %th Practice Id
@@ -12,9 +14,8 @@
     %tr
       %td= clinic.practice_id
       %td= clinic.name
-      %td= link_to 'Show', clinic
       %td= link_to 'Edit', edit_clinic_path(clinic)
-      %td= link_to 'Destroy', clinic, :method => :delete, :data => { :confirm => 'Are you sure?' }
+      %td.hidden= link_to 'Destroy', clinic, :method => :delete, :data => { :confirm => 'Are you sure?' }
 
 %br
 
