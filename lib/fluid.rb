@@ -8,13 +8,13 @@ module Fluid
       @survey_id = '859623'
     end
 
-    def get_results(date)
+    def get_results(startDate)
       options = {
         :basic_auth => @auth,
         :hehaders => { 'Content-Type' => 'application/json' }
       }      
-      puts "URL: http://fluidsurveys.com/api/v3/surveys/#{@survey_id}/csv/?_created_at>#{date}&comma_separated=true"
-      resp = self.class.get("http://fluidsurveys.com/api/v3/surveys/#{@survey_id}/csv/?_created_at>#{date}&comma_separated=true", options)
+      puts "URL: http://fluidsurveys.com/api/v3/surveys/#{@survey_id}/csv/?_created_at>#{startDate}&comma_separated=true"
+      resp = self.class.get("http://fluidsurveys.com/api/v3/surveys/#{@survey_id}/csv/?_created_at>#{startDate}&comma_separated=true", options)
      
       return resp.body
     end      

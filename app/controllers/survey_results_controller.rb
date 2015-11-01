@@ -31,6 +31,9 @@ class SurveyResultsController < ApplicationController
   # GET /survey_results/new
   def new
     result_count = SurveyAnswer.count(:conditions => "run_id = #{params[:run_id].to_s}")
+    for_run = Run.find(params[:run_id])
+    puts "FOR RUN: " + for_run.id.to_s
+
     if result_count ==  0
 
       i = 0
@@ -44,8 +47,12 @@ class SurveyResultsController < ApplicationController
       puts "PATH: " + path
 
       fluid = Fluid::Api.new('dean.skelton@fyidoctors.com', 'Fyidoctors2014?!')
-      count = 1
-      responses = fluid.get_results(date: '2015-09-01', page: count)
+
+      start_date = DateTime.parse(for_run.start_date).strftime("%F")
+      end_date = DateTime.parse(for_run.end_date).strftime("%F")
+      puts "DATES: " + start_date + " : " + end_date
+
+      responses = fluid.get_results(start_date)
       File.open(path, "wb") { |f| f.write(responses.encode('UTF-8', :invalid => :replace, :undef => :replace)) }
       #File.open(path, "wb") { |f| f.write(params[:survey_result][:file].read) }
 
@@ -120,8 +127,9 @@ class SurveyResultsController < ApplicationController
           #@result.c8 = clean_comment row[start_of_results+28]
 
 
-
-          @result.save
+          if for_run.id == run_id
+            @result.save
+          end
         end
         i = i + 1
       end
