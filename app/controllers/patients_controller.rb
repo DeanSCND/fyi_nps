@@ -55,7 +55,63 @@ class PatientsController < ApplicationController
     #  logger.debug("RAW: " + val["id"].to_s)
     #end    
 
-   
+    run = Run.where(:id => params[:patient][:run]).first
+    if run == nil
+      logger.debug("NO RUN CREATED")
+      return
+    end
+
+    puts "PARMS: " + params[:patient][:file].to_s
+
+    name = params[:patient][:file].original_filename
+    directory = 'tmp'
+    path = File.join(directory, "TEMP_PATIENTS.xlsx")
+    csv_path = File.join(directory, "TEMP_PATIENTS.csv")
+    puts "PATH: " + path
+    File.open(path, "wb") { |f| f.write(params[:patient][:file].read) }
+
+
+    parsed_file = Roo::Excelx.new(path) 
+
+    puts parsed_file.sheet(0).to_csv(csv_path)
+
+    csv_file = File.read(csv_path)
+    
+    CSV.parse(csv_file, headers: true) do |row|
+      if row[3] != "Full Name"
+        rawEmail = row[6];
+        cleanEmail = rawEmail.delete(' ').gsub(',','.')
+        pExists = Patient.where(:email => cleanEmail).first
+
+        if(rawEmail != cleanEmail) 
+          log = Log.new
+          log.type = "PATIENT"
+          log.message = "Patient with email " + rawEmail + " was cleaned to " + cleanEmail + " for clinic " + row[0].to_s
+          log.save
+        end
+        if(pExists != nil) 
+          log = Log.new
+          log.type = "PATIENT"
+          log.message = "Patient with email " + cleanEmail + " already exists with id=" + pExists.id.to_s + ". Skipping."
+          log.save
+        end
+    
+        @patient = Patient.new
+        @patient.name = row[2].to_s + " " + row[1].to_s
+        @patient.email = cleanEmail.downcase
+        @patient.practice_id = row[0]
+        @patient.visitDate = row[7]
+        #@patient.run = params[:patient][:run]
+        @patient.run_id = run.id
+        clinic = Clinic.where(:practice_id => @patient.practice_id).first
+              
+        @patient.save
+      else
+        logger.debug("Skipping " + row[3])
+      end
+      
+      # TODO - ADD UNIQUNESS CHECK AND UPDATE RECORD INSTEAD
+    end    
        
     #@patient = Patient.new(patient_params)
 

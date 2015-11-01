@@ -14,9 +14,11 @@
 		- @patient_count = Patient.count(:conditions => "run_id = #{run.id.to_s}")
 		- @result_count = SurveyAnswer.count(:conditions => "run_id = #{run.id.to_s}")
 		- @visit_dates = Patient.find_by_sql('select min("visitDate") as start, max("visitDate") as end from patients where run_id = ' + run.id.to_s).first
+		- @stat_count = PracticeReport.count(:conditions => "run_id = #{run.id.to_s}")
 		%tr
 			%td= @patient_count
 			%td= @result_count
+			%td= @stat_count
 			%td= run.name
 			%td
 				-if @visit_dates.start != nil
@@ -35,7 +37,7 @@
 						%li
 							%a{:href=>"#{patients_path}?run=#{run.id}", :class=>(@patient_count==0 ? 'hidden' : '')}
 								Export for Survey
-			%td= link_to 'Load Results', new_survey_result_path(:run_id=>run.id), :class=>'btn btn-primary btn-sm ' + (@patient_count>0 ? 'disabled' : '') 
+			%td= link_to 'Load Results', new_survey_result_path(:run_id=>run.id), :class=>'btn btn-primary btn-sm ' + (@patient_count>0 && @result_count>0 && @stat_count > 0 ? 'disabled' : '') 
 			%td
 				.btn-group
 					%button.btn.btn-success.btn-sm.dropdown-toggle{:class => (@result_count==0 ? 'disabled' : ''), :type=>"button", :data=>{:toggle=>'dropdown'}}
