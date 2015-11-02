@@ -12,9 +12,11 @@ module Fluid
       options = {
         :basic_auth => @auth,
         :hehaders => { 'Content-Type' => 'application/json' }
-      }      
-      puts "URL: http://fluidsurveys.com/api/v3/surveys/#{@survey_id}/csv/?_created_at>#{startDate}&comma_separated=true"
-      resp = self.class.get("http://fluidsurveys.com/api/v3/surveys/#{@survey_id}/csv/?_created_at>#{startDate}&comma_separated=true", options)
+      }    
+
+      url = URI.encode("http://fluidsurveys.com/api/v3/surveys/#{@survey_id}/csv/?_created_at>#{startDate}&comma_separated=true")
+      puts "URL: " + url
+      resp = self.class.get(url, options)
      
       return resp.body
     end      
