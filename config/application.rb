@@ -23,8 +23,11 @@ module NpsManager
     # config.i18n.default_locale = :de
 
     config.after_initialize do
-      config.path = Config.where(name: "path").first.value  
-      puts config.path
+      config_record = Config.where(name: "path")
+      if config_record.first != nil
+        config.path = Config.where(name: "path").first.value  
+        puts config.path
+      end
     end
   end
 end
