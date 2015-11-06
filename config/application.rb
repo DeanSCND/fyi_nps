@@ -22,6 +22,8 @@ module NpsManager
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
 
+    config.path = "/Users/Adrian/Work/FYi/NetNet\ Promoter\ Score/"
+
     config.after_initialize do
       begin
         config_record = Config.where(name: "path").first
