@@ -1,0 +1,12 @@
+%p#notice= notice
+
+%p
+  %b Name:
+  = @config.name
+%p
+  %b Value:
+  = @config.value
+
+= link_to 'Edit', edit_config_path(@config)
+\|
+= link_to 'Back', config_path

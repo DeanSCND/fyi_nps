@@ -4,7 +4,7 @@ class ClinicsController < ApplicationController
   # GET /clinics
   # GET /clinics.json
   def index
-    @clinics = Clinic.all
+    @clinics = Clinic.all.order(:practice_id)
   end
 
   # GET /clinics/1
@@ -69,6 +69,6 @@ class ClinicsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def clinic_params
-      params.require(:clinic).permit(:practice_id, :name)
+      params.require(:clinic).permit(:practice_id, :name, :province)
     end
 end

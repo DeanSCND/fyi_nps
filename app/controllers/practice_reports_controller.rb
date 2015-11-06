@@ -5,7 +5,10 @@ class PracticeReportsController < ApplicationController
   	def index
   		@pResults = PracticeReport.summary_report_by_practices
   		@gResults = PracticeReport.summary_report_by_groups
-  		csv = @pResults
+
+      provinces = ["Alberta", "British Columbia", "Saskatchewan", "Manitoba", "Ontario", "Nova Scotia", "New Brunswick"]
+  		
+      csv = @pResults
 
   		groups = false
   		if params[:group] != nil

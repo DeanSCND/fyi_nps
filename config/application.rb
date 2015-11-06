@@ -23,10 +23,14 @@ module NpsManager
     # config.i18n.default_locale = :de
 
     config.after_initialize do
-      config_record = Config.where(name: "path")
-      if config_record.first != nil
-        config.path = Config.where(name: "path").first.value  
-        puts config.path
+      begin
+        config_record = Config.where(name: "path").first
+        if config_record != nil
+          config.path = Config.where(name: "path").first.value  
+          puts config.path
+        end
+      rescue
+        puts "Config not migrated yet"
       end
     end
   end
