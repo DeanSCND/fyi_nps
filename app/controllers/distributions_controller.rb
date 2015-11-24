@@ -5,6 +5,8 @@ class DistributionsController < ApplicationController
 	def new
 		if params[:run_id] != nil
 			run = Run.find(params[:run_id])
+			path = Setting.where(name: "path")
+			
 			email_body = "Attached is your latest Net Promoter Score reports.  If you have any questions, comments or concerns please feel free to contact your regional coach. They should be able to provide insights and answers to questions related to the surveys and results.<BR><BR>Thanks<BR><BR>The NPS Team<BR>"
 			i = 0
 			Distribution.all.each do |distro|

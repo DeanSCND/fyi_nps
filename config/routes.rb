@@ -28,7 +28,7 @@ NpsManager::Application.routes.draw do
   resources :surveys
 
   resources :clinics
-  resources :configs
+  resources :settings
   resources :backups, :only=>[:index]
   resources :patients
   resources :dashboards, :only=>[:index]

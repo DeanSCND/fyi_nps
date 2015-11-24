@@ -3,6 +3,7 @@ class PracticeReportsController < ApplicationController
 	require 'json'
 
   	def index
+      @runs = Run.all.order(id: :desc)
   		@pResults = PracticeReport.summary_report_by_practices
   		@gResults = PracticeReport.summary_report_by_groups
 
