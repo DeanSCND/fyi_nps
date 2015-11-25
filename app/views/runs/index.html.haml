@@ -53,7 +53,7 @@
 						%li
 							%a{:href=>"#{run_clinics_reports_path(run.id)}?type=both"}
 								Combined										
-						%li.hidden
+						%li
 							%a{:href=>"#{new_run_statistic_path(run.id)}"}
 								Generate Statistics
 			%td= link_to 'Distribute', new_run_distribution_path(run), :class=>'btn btn-primary btn-sm ' + (@result_count==0 ? 'disabled' : '')
