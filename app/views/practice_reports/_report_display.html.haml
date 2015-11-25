@@ -1,0 +1,45 @@
+:css
+  td {
+    padding-left: 5px;
+    padding-right: 5px;
+    border: 1px solid gray;
+  }
+  .n3 {
+    background-color: #ececec;
+  }
+  .light {
+    background-color: #ffffff;
+  }
+  .dark {
+    background-color: #ececec;  
+  }
+  .header {
+    font-weight: bold;
+
+  }
+  .trendCell {
+    height: 100px;
+  }
+  .upIndicator {
+    color: green;
+    float: right;
+    font-size: 11px;
+  }
+  .downIndicator {
+    color: red;
+    float: right;
+    font-size: 11px;
+  }
+%h2 
+  For Run:
+  = select_tag("Run", options_for_select(@runs.map{ |r| [r.name, r.id]}), :onchange => 'window.location.href =  "/practice_reports/"+ this.value')
+%h1
+  By Locations
+%a{:href=>"/practice_reports.csv"}
+  Export
+= render :partial => 'practice_report_grid.html.haml', :locals=>{:pResults=>@pResults}
+%h1
+  By Groups
+%a{:href=>"/practice_reports.csv?group=true"} 
+  Export
+= render :partial => 'practice_report_grid.html.haml', :locals=>{:pResults=>@gResults}

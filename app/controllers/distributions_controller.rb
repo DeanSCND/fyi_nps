@@ -21,14 +21,14 @@ class DistributionsController < ApplicationController
 				logger.debug(email_str)
 
 				clinic_report_str = ""
-				clinic_report_path = "/Users/Adrian/Work/FYi/Net Promoter Score/reports/" + run.name + "/clinics/"
+				clinic_report_path = "files/reports/" + run.name + "/clinics/"
 				DistributionClinic.where(:distribution_id=>distro.id).each do |clinic|
 					clinic_report_str += clinic_report_path + "report_" + clinic.practice_id.to_s + ".pdf,"
 					clinic_report_str += clinic_report_path + "report_" + clinic.practice_id.to_s + "_with_emails.pdf,"
 				end
 				logger.debug(clinic_report_str)
 
-				group_report_path = "/Users/Adrian/Work/FYi/Net Promoter Score/reports/" + run.name + "/groups/"
+				group_report_path = "files/reports/" + run.name + "/groups/"
 				DistributionPracticeGroup.where(:distribution_id=>distro.id).each do |group|
 					clinic_report_str += group_report_path + "report_" + group.practice_group_id.to_s + ".pdf,"
 					clinic_report_str += group_report_path + "report_" + group.practice_group_id.to_s + "_with_emails.pdf,"
@@ -36,7 +36,7 @@ class DistributionsController < ApplicationController
 				logger.debug(clinic_report_str)
 
 
-				script = 'osascript "/Users/Adrian/Work/FYi/Net Promoter Score/Distribution Scripts/testscript.scpt" "Latest Net Promoter Score Report" "' + email_body + '" ' + email_str[0..-2] + ' "' + clinic_report_str[0..-2] + '"'
+				script = 'osascript "files/scripts/testscript.scpt" "Latest Net Promoter Score Report" "' + email_body + '" ' + email_str[0..-2] + ' "' + clinic_report_str[0..-2] + '"'
 				logger.debug("RUNNING: " + script)
 				system(script)
 

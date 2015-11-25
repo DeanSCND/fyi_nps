@@ -5,7 +5,7 @@ module Fluid
     
     def initialize(u, p)
       @auth = {:username => u, :password => p}
-      @survey_id = '859623'
+      @survey_id = '537808'
     end
 
     def get_results(startDate)

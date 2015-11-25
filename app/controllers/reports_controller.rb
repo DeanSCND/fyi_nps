@@ -104,13 +104,9 @@ class ReportsController < ApplicationController
             :anonymous=>false, :year_nps1 => @year_nps1, :year_nps2 => @year_nps2, :year_nps3 => @year_nps3
           })
 
-          #:action => :show,  :id => result.practice_id.to_s, :run=>run )
-          
-          #reportFile = "#{Rails.configuration.path}reports/" + run.name + "/clinics/report_" + clinic.practice_id.to_s + ".doc"
-          #File.open(reportFile, "w"){|f| f << data}
 
-          FileUtils.mkdir_p("#{Rails.configuration.path}reports/" + run.name + "/clinics/")
-          reportFile1 = "#{Rails.configuration.path}reports/" + run.name + "/clinics/report_" + clinic.practice_id.to_s + ".pdf"
+          FileUtils.mkdir_p("files/reports/" + run.name + "/clinics/")
+          reportFile1 = "files/reports/" + run.name + "/clinics/report_" + clinic.practice_id.to_s + ".pdf"
           pdf1 = WickedPdf.new.pdf_from_string(data)
           #File.open(pdf, "w"){|f| f << data}
           save_path = reportFile1
@@ -118,7 +114,7 @@ class ReportsController < ApplicationController
             file << pdf1
           end
 
-          reportFile2 = "#{Rails.configuration.path}reports/" + run.name + "/clinics/report_" + clinic.practice_id.to_s + "_with_emails.pdf"
+          reportFile2 = "files/reports/" + run.name + "/clinics/report_" + clinic.practice_id.to_s + "_with_emails.pdf"
           pdf2 = WickedPdf.new.pdf_from_string(data_emails)
           
           #File.open(pdf, "w"){|f| f << data}
@@ -195,8 +191,8 @@ class ReportsController < ApplicationController
 
           #:action => :show,  :id => result.practice_id.to_s, :run=>run )
           
-          FileUtils.mkdir_p("#{Rails.configuration.path}reports/" + run.name + "/groups/")
-          reportFile1 = "#{Rails.configuration.path}reports/" + run.name + "/groups/report_" + group.id.to_s + ".pdf"
+          FileUtils.mkdir_p("files/reports/" + run.name + "/groups/")
+          reportFile1 = "files/reports/" + run.name + "/groups/report_" + group.id.to_s + ".pdf"
           pdf = WickedPdf.new.pdf_from_string(data)
           #File.open(pdf, "w"){|f| f << data}
           save_path = reportFile1
@@ -204,7 +200,7 @@ class ReportsController < ApplicationController
             file << pdf
           end
 
-          reportFile2 = "#{Rails.configuration.path}reports/" + run.name + "/groups/report_" + group.id.to_s + "_with_emails.pdf"
+          reportFile2 = "files/reports/" + run.name + "/groups/report_" + group.id.to_s + "_with_emails.pdf"
           pdf = WickedPdf.new.pdf_from_string(data_emails)
           #File.open(pdf, "w"){|f| f << data}
           save_path = reportFile2

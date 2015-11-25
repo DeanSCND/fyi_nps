@@ -187,8 +187,8 @@ class PatientsController < ApplicationController
           logger.debug("FETCHED: " + @patients.count.to_s)
           last = @patients.last.id
           logger.debug("LAST: " + last.to_s)
-          FileUtils.mkdir_p("#{Rails.configuration.path}patients/" + run.name)
-          importFile = "#{Rails.configuration.path}patients/" + run.name + "/fluid-import_" + i.to_s + ".csv"
+          FileUtils.mkdir_p("files/patients/" + run.name)
+          importFile = "files/patients/" + run.name + "/fluid-import_" + i.to_s + ".csv"
           File.open(importFile, "w"){|f| f << @patients.to_csv}
           file = {
             "file" => importFile,

@@ -78,54 +78,32 @@ class SurveyResultsController < ApplicationController
           logger.debug("PT: " + @patient.id.to_s  )
           @result.status = row[0]
           @result.fid = row[1].to_i
-          #@result.created = 
           @result.ip = row[5]
           @result.location = row[6]
-          #@result.nps = row[11].to_i
-          #run = Run.where(:name => row[17]).first
-          #if (run == nil)
-          #  logger.debug("OH SNAP. NO RUN FOR THIS. BAILING")
-          #  break;
-          #end
-          #@result.run = run.name
+
           @result.run_id = @patient.run.id
           run_id = @result.run_id
           @result.collector = row[start_of_results]
 
-          @result.n1 = calculate_score row[start_of_results+1]
-          #@result.n1o = row[start_of_results+30]
-          @result.n2 = calculate_score row[start_of_results+2]
-          #@result.n2o = row[start_of_results+32]
-          @result.n3 = calculate_score row[start_of_results+3]
-          
-          @result.c9 = clean_comment row[start_of_results+4]
+          @result.n1 = calculate_score row[start_of_results+14]
+          @result.n2 = calculate_score row[start_of_results+15]
+          @result.n3 = calculate_score row[start_of_results+16]
+          @result.c9 = clean_comment row[start_of_results+17]
 
-          @result.b2 = row[start_of_results+5]
+          @result.a1 = calculate_score row[start_of_results+1]
+          @result.c1 = clean_comment row[start_of_results+2]
+          @result.a2 = calculate_score row[start_of_results+3]
+          @result.a3 = calculate_score row[start_of_results+4]
+          @result.a3o = row[start_of_results+5]
+          @result.a4 = calculate_score row[start_of_results+6]
+          @result.a4o = row[start_of_results+7]
+          @result.a5 = calculate_score row[start_of_results+8]
+          @result.a5o = row[start_of_results+9]
+          @result.a6 = calculate_score row[start_of_results+10]
+          @result.a6o = row[start_of_results+11]
 
-          @result.a1 = calculate_score row[start_of_results+6]
-          @result.c1 = clean_comment row[start_of_results+7]
-          @result.a2 = calculate_score row[start_of_results+8]
-          #@result.b2 = row[start_of_results+10]
-          @result.a3 = calculate_score row[start_of_results+9]
-          #@result.a3o = row[start_of_results+10]
-          @result.c3 = clean_comment row[start_of_results+10]
-          @result.a4 = calculate_score row[start_of_results+11]
-          #@result.a4o = row[start_of_results+15]
-          @result.c4 = clean_comment row[start_of_results+12]
-          @result.a5 = calculate_score row[start_of_results+13]
-          #@result.a5o = row[start_of_results+18]
-          @result.c5 = clean_comment row[start_of_results+14]
-          @result.a6 = calculate_score row[start_of_results+15]
-          #@result.a6o = row[start_of_results+21]
-          @result.c6 = clean_comment row[start_of_results+16]
-
-          #@result.a7 = calculate_score row[start_of_results+23]
-          #@result.a7o = row[start_of_results+24]
-          #@result.c7 = clean_comment row[start_of_results+25]
-          #@result.a8 = calculate_score row[start_of_results+26]
-          #@result.a8o = row[start_of_results+27]
-          #@result.c8 = clean_comment row[start_of_results+28]
-
+          @result.a7 = calculate_score row[start_of_results+12]
+          @result.a7o = row[start_of_results+13]
 
           if for_run.id == run_id
             @result.save

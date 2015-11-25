@@ -557,15 +557,24 @@
 		= render :partial => 'reports/opt_out_comments.html.haml', :locals => {:comments=>opt_out_comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
 		= render :partial => 'reports/comments.html.haml', :locals => {:comments=>comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
 
+
 		- answerCounts = results.group('a6').order('a6 asc').count('a6')
 		- naCount = results.where(:a6=>nil).count
 		- comments = results.where(["c6!=''"]).select("c6 as c, patient_id, a6 as a")
 		- opt_out_comments = results.where(["a6o!=''"]).select("a6o as c, patient_id, a6 as a")
-		= render :partial => 'reports/question.html.haml', :locals => {:title=>"How would you rate out selection of fashion frames and additional products?", :score=>sums[0][:a6], :results=>results, :counts=>answerCounts, :naCount=>naCount}
+		= render :partial => 'reports/question.html.haml', :locals => {:title=>"Did the doctor and staff provide valuable product information to you, explaining the benefits of new personalized technology in lenses and how it would improve your vision and lifestyle needs: On Eyeglasses and Lenses?", :score=>sums[0][:a7], :results=>results, :counts=>answerCounts, :naCount=>naCount}
+		= render :partial => 'reports/opt_out_comments.html.haml', :locals => {:comments=>opt_out_comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
+		= render :partial => 'reports/comments.html.haml', :locals => {:comments=>comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
+
+		- answerCounts = results.group('a7').order('a7 asc').count('a7')
+		- naCount = results.where(:a7=>nil).count
+		- comments = results.where(["c7!=''"]).select("c7 as c, patient_id, a7 as a")
+		- opt_out_comments = results.where(["a7o!=''"]).select("a7o as c, patient_id, a7 as a")
+		= render :partial => 'reports/question.html.haml', :locals => {:title=>"How would you rate our selection of fashion frames and additional products?", :score=>sums[0][:a6], :results=>results, :counts=>answerCounts, :naCount=>naCount}
 		= render :partial => 'reports/opt_out_comments.html.haml', :locals => {:comments=>opt_out_comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
 		= render :partial => 'reports/comments.html.haml', :locals => {:comments=>comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
 				
 		%h2 Final Commentary
-		%h3 Is there any additional feedback you would like to give so we can continue to improve, working to provide you with the best care possible?
+		%h3 Is there any additional feedback you would like to give so we can continue to improve to provide you with the best care?
 		- comments = results.where(["c9!=''"]).select("c9 as c, patient_id, n3 as a")
 		= render :partial => 'reports/comments.html.haml', :locals => {:comments=>comments, :scoreLabel=>'Overall NPS', :anonymous=>anonymous}

@@ -24,7 +24,7 @@ NpsManager::Application.routes.draw do
     end
   end
   resources :survey_results
-  resources :practice_reports, :only=>[:index]
+  resources :practice_reports, :only=>[:index, :show]
   resources :surveys
 
   resources :clinics
