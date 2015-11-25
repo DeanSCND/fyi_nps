@@ -1,8 +1,9 @@
 module Statistics
   class Utils
-    def self.generate_stats_for_run(run_id:)
+    def self.generate_stats_for_run(run_id)
       puts "Generating Statistics for #{run_id.to_s}"
 
+      puts("RUN: " + run_id.to_s)
       run = Run.find(run_id)
 
       PracticeReport.where(:run_id => run.id).delete_all
