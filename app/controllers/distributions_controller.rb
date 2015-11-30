@@ -21,14 +21,14 @@ class DistributionsController < ApplicationController
 				logger.debug(email_str)
 
 				clinic_report_str = ""
-				clinic_report_path = "files/reports/" + run.name + "/clinics/"
+				clinic_report_path = Rails.root.join("files/reports/" + run.name + "/clinics/").to_s
 				DistributionClinic.where(:distribution_id=>distro.id).each do |clinic|
 					clinic_report_str += clinic_report_path + "report_" + clinic.practice_id.to_s + ".pdf,"
 					clinic_report_str += clinic_report_path + "report_" + clinic.practice_id.to_s + "_with_emails.pdf,"
 				end
 				logger.debug(clinic_report_str)
 
-				group_report_path = "files/reports/" + run.name + "/groups/"
+				group_report_path = Rails.root.join("files/reports/" + run.name + "/groups/").to_s
 				DistributionPracticeGroup.where(:distribution_id=>distro.id).each do |group|
 					clinic_report_str += group_report_path + "report_" + group.practice_group_id.to_s + ".pdf,"
 					clinic_report_str += group_report_path + "report_" + group.practice_group_id.to_s + "_with_emails.pdf,"
