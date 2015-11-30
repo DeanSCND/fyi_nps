@@ -27,7 +27,11 @@ NpsManager::Application.routes.draw do
   resources :practice_reports, :only=>[:index, :show]
   resources :surveys
 
-  resources :clinics
+  resources :clinics do
+    resources :fyi_contacts
+    resources :distribution_contacts
+  end
+  resources :fyi_contacts
   resources :settings
   resources :backups, :only=>[:index]
   resources :patients

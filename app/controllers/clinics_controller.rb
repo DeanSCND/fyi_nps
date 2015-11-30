@@ -4,7 +4,7 @@ class ClinicsController < ApplicationController
   # GET /clinics
   # GET /clinics.json
   def index
-    @clinics = Clinic.all.order(:practice_id)
+    @clinics = Clinic.where('practice_id > 0').order(:practice_id)
   end
 
   # GET /clinics/1

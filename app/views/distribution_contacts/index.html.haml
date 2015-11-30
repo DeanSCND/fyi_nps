@@ -1,0 +1,18 @@
+=link_to 'All Clinics', clinics_path
+
+%h1 Staff to send reports to:
+%h3
+  = @clinic.name
+%table
+  - if @contacts.count > 0
+    -@contacts.each do |contact|
+      -fContact = FyiContact.find(contact.fyi_contact_id)
+      %tr
+      %td= fContact.email
+      %td.table-link= link_to 'Edit', edit_clinic_fyi_contact_path(@clinic.id, fContact.id)
+      %td.table-link= link_to 'Remove from Clinic', clinic_distribution_contact_path(@clinic.id, contact.id), :method => :delete, :data => { :confirm => 'Are you sure?' }
+      %td.table-link= link_to 'Delete Staff Member (from all locations)', clinic_fyi_contact_path(@clinic.id, fContact.id), :method => :delete, :data => { :confirm => 'Are you sure?' }
+  - else
+    %p 
+      No Contacts Defined
+= link_to 'New Contact', new_clinic_distribution_contact_path
