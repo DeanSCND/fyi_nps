@@ -9,8 +9,9 @@ class DistributionContactsController < ApplicationController
     print "COUNT: " + distribution_clinics.count.to_s
     if distribution_clinics.count == 0
       print "Create the record"
-      DistributionClinic.find_by_sql "select setval('distribution_clinics_id_seq', (select max(id) from distribution_clinics) + 1)"
-      @distribution_clinic = DistributionClinic.create(practice_id: @clinic.practice_id)
+      @distribution = Distribution.create()
+      @distribution.save
+      @distribution_clinic = DistributionClinic.create(distribution_id: @distribution.id, practice_id: @clinic.practice_id)
       @distribution_clinic.save
     else
       @distribution_clinic = distribution_clinics.first

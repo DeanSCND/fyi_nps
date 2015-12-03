@@ -14,7 +14,6 @@ class FyiContactsController < ApplicationController
       fyi_contact = @fyi_contacts.first
     else
       print "NOT FOUND"
-      FyiContact.find_by_sql "select setval('fyi_contacts_id_seq', (select max(id) from fyi_contacts) + 1)"
       fyi_contact = FyiContact.create(email: email)
       fyi_contact.save
     end
