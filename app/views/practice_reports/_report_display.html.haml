@@ -32,7 +32,9 @@
   }
 %h2 
   For Run:
-  = select_tag("Run", options_for_select(@runs.map{ |r| [r.name, r.id]}), :onchange => 'window.location.href =  "/practice_reports/"+ this.value')
+  = select_tag("Run", options_for_select(@runs.map{ |r| [r.name, r.id]}, @selected_run.id), :onchange => 'window.location.href =  "/practice_reports/"+ this.value')
+%p
+  = @selected_run.id
 %h1
   By Locations
 %a{:href=>"/practice_reports.csv"}
