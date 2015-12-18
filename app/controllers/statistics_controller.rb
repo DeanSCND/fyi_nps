@@ -15,7 +15,7 @@ class StatisticsController < ApplicationController
 
   def new
 		if params[:run_id] != nil
-			Statistics::Utils.generate_stats_for_run(run_id: params[:run_id])
+			Statistics::Utils.generate_stats_for_run(params[:run_id])
 		end
   end
 end

@@ -27,6 +27,15 @@ and pr.run_id = ?
 order by g.practice_code, pr.run_id", run_id]
 	end
 
+	def self.summary_report_by_provinces(run_id)
+		PracticeReport.find_by_sql ["select pr.province as name, 0 as practice_id, n1, n2, n3, responses, response_rate, pr.run_id, r.quarter, r.fiscal_year 
+from practice_reports pr, runs r
+where pr.run_id = r.id
+and pr.stat_type = 'rolling'
+and pr.run_id = ?
+and pr.province is not null 
+order by pr.province, pr.run_id", run_id]
+	end
 
 	def self.to_csv2(results)
 	      logger.debug("HERE")

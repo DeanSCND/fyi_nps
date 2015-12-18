@@ -8,16 +8,15 @@ class PracticeReportsController < ApplicationController
 
   		@pResults = PracticeReport.summary_report_by_practices(@selected_run.id)
   		@gResults = PracticeReport.summary_report_by_groups(@selected_run.id)
-
-      provinces = ["Alberta", "British Columbia", "Saskatchewan", "Manitoba", "Ontario", "Nova Scotia", "New Brunswick"]
+      @prResults = PracticeReport.summary_report_by_provinces(@selected_run.id)
   		
       csv = @pResults
 
-  		groups = false
   		if params[:group] != nil
-  			groups = true
   			csv=@gResults
-  		end
+      elsif params[:prov] != nil
+        csv=@prResults
+      end
   		
 
 		respond_to do |format|
@@ -37,10 +36,10 @@ class PracticeReportsController < ApplicationController
       
       csv = @pResults
 
-      groups = false
       if params[:group] != nil
-        groups = true
-        csv=@gResults
+          csv=@gResults
+      elsif params[:prov] != nil
+        csv=@prResults
       end
       
 

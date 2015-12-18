@@ -54,6 +54,33 @@ module Statistics
         self.save_group_statistics('rolling', run.id, group.id, invites_roll.count.to_f, @results_roll.count, @nps1, @nps2, @nps3 )
       end
 
+      puts("RUNNING FOR PROVINCES")
+      provinces = ["Alberta", "British Columbia", "Saskatchewan", "Manitoba", "Ontario", "Nova Scotia", "New Brunswick"]
+
+      provinces.each do |province|
+        puts("Generating stats for : " + province)
+
+        practices = Clinic.where(:province=>province)
+        invites = Patient.where(:run_id=>run.id, :practice_id=>practices).count
+        
+        @results = SurveyAnswer.where(:run_id=>run.id, :practice_id => practices, :status=>"Complete")
+        invites_roll = Patient.where("run_id <= ?", run.id).where("run_id >= 14").where(:practice_id=>practices).count
+        @results_roll = SurveyAnswer.where("run_id <= ?", run.id).where("run_id >= 14").where(:practice_id => practices, :status=>"Complete")
+        @tot_results = SurveyAnswer.where(:practice_id => practices, :status=>"Complete").where("run_id >= 14")      
+
+        @nps1 = (((@results.all(:conditions => "n1>8").count.to_f / @results.all(:conditions => "n1 >= 0").count.to_f) ) - ((@results.all(:conditions => "n1<7").count.to_f / @results.all(:conditions => "n1 >= 0").count.to_f))).round(4)
+        @nps2 = (((@results.all(:conditions => "n2>8").count.to_f / @results.all(:conditions => "n2 >= 0").count.to_f) ) - ((@results.all(:conditions => "n2<7").count.to_f / @results.all(:conditions => "n2 >= 0").count.to_f))).round(4)
+        @nps3 = (((@results.all(:conditions => "n3>8").count.to_f / @results.all(:conditions => "n3 >= 0").count.to_f) ) - ((@results.all(:conditions => "n3<7").count.to_f / @results.all(:conditions => "n3 >= 0").count.to_f))).round(4)
+
+        save_prov_statistics('period', run.id, province, invites.to_f, @results.count, @nps1, @nps2, @nps3 )
+        
+        @nps1 = (((@results_roll.all(:conditions => "n1>8").count.to_f / @results_roll.all(:conditions => "n1 >= 0").count.to_f) ) - ((@results_roll.all(:conditions => "n1<7").count.to_f / @results_roll.all(:conditions => "n1 >= 0").count.to_f))).round(4)
+        @nps2 = (((@results_roll.all(:conditions => "n2>8").count.to_f / @results_roll.all(:conditions => "n2 >= 0").count.to_f) ) - ((@results_roll.all(:conditions => "n2<7").count.to_f / @results_roll.all(:conditions => "n2 >= 0").count.to_f))).round(4)
+        @nps3 = (((@results_roll.all(:conditions => "n3>8").count.to_f / @results_roll.all(:conditions => "n3 >= 0").count.to_f) ) - ((@results_roll.all(:conditions => "n3<7").count.to_f / @results_roll.all(:conditions => "n3 >= 0").count.to_f))).round(4)
+
+        self.save_prov_statistics('rolling', run.id, province, invites_roll.to_f, @results_roll.count, @nps1, @nps2, @nps3 )
+
+      end
       puts("RUNNING FOR FYI")
 
       run = Run.find(run_id)
@@ -78,7 +105,7 @@ module Statistics
       @nps3 = (((@results_roll.all(:conditions => "n3>8").count.to_f / @results_roll.all(:conditions => "n3 >= 0").count.to_f) ) - ((@results_roll.all(:conditions => "n3<7").count.to_f / @results_roll.all(:conditions => "n3 >= 0").count.to_f))).round(4)
 
       save_practice_statistics('rolling', run.id, 0, invites_roll.to_f, @results_roll.count, @nps1, @nps2, @nps3 )
-    end
+    end      
 
     def self.save_practice_statistics(type, run_id, practice_id, invites, response_count, n1, n2, n3)
       pr = PracticeReport.new
@@ -107,6 +134,26 @@ module Statistics
       pr.n3 = n3
       pr.run_id = run_id
       pr.practice_group_id = group_id
+      pr.responses = response_count
+      
+      puts("Invites: " + invites.to_s + " : " + @results.count.to_s)
+      if(invites > 0)
+        pr.response_rate = (response_count.to_f/invites.to_f).round(4).to_f
+      else
+        pr.response_rate = 0
+      end
+
+      pr.stat_type = type
+      pr.save
+    end
+
+    def self.save_prov_statistics(type, run_id, province, invites, response_count, n1, n2, n3)
+      pr = PracticeReport.new
+      pr.n1 = n1
+      pr.n2 = n2
+      pr.n3 = n3
+      pr.run_id = run_id
+      pr.province = province
       pr.responses = response_count
       
       puts("Invites: " + invites.to_s + " : " + @results.count.to_s)

@@ -45,3 +45,8 @@
 %a{:href=>"/practice_reports.csv?group=true"} 
   Export
 = render :partial => 'practice_report_grid.html.haml', :locals=>{:pResults=>@gResults}
+%h1
+  By Province
+%a{:href=>"/practice_reports.csv?prov=true"} 
+  Export
+= render :partial => 'practice_report_grid.html.haml', :locals=>{:pResults=>@prResults}
