@@ -10,6 +10,15 @@ class PracticeReportsController < ApplicationController
   		@gResults = PracticeReport.summary_report_by_groups(@selected_run.id)
       @prResults = PracticeReport.summary_report_by_provinces(@selected_run.id)
   		
+      if @pResults == nil
+        @pResults = []
+      end
+      if @gResults == nil
+        @gResults = []
+      end
+      if @prResults == nil
+        @prResults = []
+      end
       csv = @pResults
 
   		if params[:group] != nil
@@ -29,15 +38,24 @@ class PracticeReportsController < ApplicationController
     def show
       @runs = Run.where("fiscal_year is not null").order(id: :desc)
       @selected_run = Run.find(params[:id])
+
       @pResults = PracticeReport.summary_report_by_practices(@selected_run.id)
       @gResults = PracticeReport.summary_report_by_groups(@selected_run.id)
-
-      provinces = ["Alberta", "British Columbia", "Saskatchewan", "Manitoba", "Ontario", "Nova Scotia", "New Brunswick"]
+      @prResults = PracticeReport.summary_report_by_provinces(@selected_run.id)
       
+      if @pResults == nil
+        @pResults = []
+      end
+      if @gResults == nil
+        @gResults = []
+      end
+      if @prResults == nil
+        @prResults = []
+      end
       csv = @pResults
 
       if params[:group] != nil
-          csv=@gResults
+        csv=@gResults
       elsif params[:prov] != nil
         csv=@prResults
       end
