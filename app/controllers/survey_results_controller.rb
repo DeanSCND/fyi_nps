@@ -112,7 +112,7 @@ class SurveyResultsController < ApplicationController
         i = i + 1
       end
 
-      Statistics::Utils.generate_stats_for_run(run_id: run_id)
+      Statistics::Utils.generate_stats_for_run(run_id)
     
     end
 
