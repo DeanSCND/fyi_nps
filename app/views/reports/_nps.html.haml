@@ -531,8 +531,7 @@
 		- answerCounts = results.group('a2').order('a2 asc').count('a2')
 		- naCount = results.where(:a2=>nil).count
 		= render :partial => 'reports/question.html.haml', :locals => {:title=>"Were you promptly attended to without a significant wait time throughout your eye care experience?", :score=>sums[0][:a1], :results=>results, :counts=>answerCounts, :naCount=>naCount, :comments=>comments}
-		= render :partial => 'reports/comments.html.haml', :locals => {:comments=>comments, :scoreLabel=>'Question Score', :anonymous=>anonymous}
-
+		%p Patients are not prompted for comments on this question
 		- answerCounts = results.group('a3').order('a3 asc').count('a3')
 		- naCount = results.where(:a3=>nil).count
 		- comments = results.where(["c3!=''"]).select("c3 as c, patient_id, a3 as a")
