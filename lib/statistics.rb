@@ -5,6 +5,7 @@ module Statistics
 
       puts("RUN: " + run_id.to_s)
       run = Run.find(run_id)
+      fiscal_start = Run.where(fiscal_year: '2016').min.id
 
       PracticeReport.where(:run_id => run.id).delete_all
 
@@ -15,9 +16,9 @@ module Statistics
         #my_html = '<html><head></head><body><p>Hello</p></body></html>'
         invites = Patient.where(:run_id=>run.id, :practice_id=>clinic.practice_id).count
         @results = SurveyAnswer.where(:run_id=>run.id, :practice_id => clinic.practice_id, :status=>"Complete")
-        invites_roll = Patient.where("run_id <= ?", run.id).where("run_id >= 14").where(:practice_id=>clinic.practice_id).count
-        @results_roll = SurveyAnswer.where("run_id <= ?", run.id).where("run_id >= 14").where(:practice_id => clinic.practice_id, :status=>"Complete")
-        @tot_results = SurveyAnswer.where(:practice_id => clinic.practice_id, :status=>"Complete").where("run_id >= 14")      
+        invites_roll = Patient.where("run_id <= ?", run.id).where("run_id >= #{fiscal_start}").where(:practice_id=>clinic.practice_id).count
+        @results_roll = SurveyAnswer.where("run_id <= ?", run.id).where("run_id >= #{fiscal_start}").where(:practice_id => clinic.practice_id, :status=>"Complete")
+        @tot_results = SurveyAnswer.where(:practice_id => clinic.practice_id, :status=>"Complete").where("run_id >= #{fiscal_start}")      
 
         @nps1 = (((@results.all(:conditions => "n1>8").count.to_f / @results.all(:conditions => "n1 >= 0").count.to_f) ) - ((@results.all(:conditions => "n1<7").count.to_f / @results.all(:conditions => "n1 >= 0").count.to_f))).round(4)
         @nps2 = (((@results.all(:conditions => "n2>8").count.to_f / @results.all(:conditions => "n2 >= 0").count.to_f) ) - ((@results.all(:conditions => "n2<7").count.to_f / @results.all(:conditions => "n2 >= 0").count.to_f))).round(4)
@@ -37,8 +38,8 @@ module Statistics
 
         invites = group.get_invites(run.id).count
         @results = group.get_answers(run.id)
-        invites_roll = group.get_rolling_invites(14)
-        @results_roll = group.get_rolling_answers(14)
+        invites_roll = group.get_rolling_invites(fiscal_start)
+        @results_roll = group.get_rolling_answers(fiscal_start)
         @tot_results = group.get_all_answers
 
         @nps1 = (((@results.all(:conditions => "n1>8").count.to_f / @results.all(:conditions => "n1 >= 0").count.to_f)) - ((@results.all(:conditions => "n1<7").count.to_f / @results.all(:conditions => "n1 >= 0").count.to_f) )).round(4)
@@ -64,9 +65,9 @@ module Statistics
         invites = Patient.where(:run_id=>run.id, :practice_id=>practices).count
         
         @results = SurveyAnswer.where(:run_id=>run.id, :practice_id => practices, :status=>"Complete")
-        invites_roll = Patient.where("run_id <= ?", run.id).where("run_id >= 14").where(:practice_id=>practices).count
-        @results_roll = SurveyAnswer.where("run_id <= ?", run.id).where("run_id >= 14").where(:practice_id => practices, :status=>"Complete")
-        @tot_results = SurveyAnswer.where(:practice_id => practices, :status=>"Complete").where("run_id >= 14")      
+        invites_roll = Patient.where("run_id <= ?", run.id).where("run_id >= #{fiscal_start}").where(:practice_id=>practices).count
+        @results_roll = SurveyAnswer.where("run_id <= ?", run.id).where("run_id >= #{fiscal_start}").where(:practice_id => practices, :status=>"Complete")
+        @tot_results = SurveyAnswer.where(:practice_id => practices, :status=>"Complete").where("run_id >= #{fiscal_start}")      
 
         @nps1 = (((@results.all(:conditions => "n1>8").count.to_f / @results.all(:conditions => "n1 >= 0").count.to_f) ) - ((@results.all(:conditions => "n1<7").count.to_f / @results.all(:conditions => "n1 >= 0").count.to_f))).round(4)
         @nps2 = (((@results.all(:conditions => "n2>8").count.to_f / @results.all(:conditions => "n2 >= 0").count.to_f) ) - ((@results.all(:conditions => "n2<7").count.to_f / @results.all(:conditions => "n2 >= 0").count.to_f))).round(4)
@@ -90,8 +91,8 @@ module Statistics
       #my_html = '<html><head></head><body><p>Hello</p></body></html>'
       invites = Patient.where(:run_id=>run.id).count
       @results = SurveyAnswer.where(:run_id=>run.id, :status=>"Complete")
-      invites_roll = Patient.where("run_id <= ?", run.id).where("run_id >= 14").count
-      @results_roll = SurveyAnswer.where("run_id <= ?", run.id).where("run_id >= 14").where(:status=>"Complete")
+      invites_roll = Patient.where("run_id <= ?", run.id).where("run_id >= #{fiscal_start}").count
+      @results_roll = SurveyAnswer.where("run_id <= ?", run.id).where("run_id >= #{fiscal_start}").where(:status=>"Complete")
       @tot_results = SurveyAnswer.where(:status=>"Complete")
 
       @nps1 = (((@results.all(:conditions => "n1>8").count.to_f / @results.all(:conditions => "n1 >= 0").count.to_f) ) - ((@results.all(:conditions => "n1<7").count.to_f / @results.all(:conditions => "n1 >= 0").count.to_f))).round(4)
