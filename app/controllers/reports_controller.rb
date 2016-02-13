@@ -58,7 +58,7 @@ class ReportsController < ApplicationController
           @year_nps2 = (roll_stats[0].n2 * 100).round(2)
           @year_nps3 = (roll_stats[0].n3 * 100).round(2)
 
-          last_year_exit = PracticeReport.where(run_id: 13, practice_id: clinic.practice_id, stat_type: "rolling").first
+          last_year_exit = PracticeReport.where(run_id: 39, practice_id: clinic.practice_id, stat_type: "rolling").first
 
           if last_year_exit == nil
             last_year_exit = PracticeReport.new
