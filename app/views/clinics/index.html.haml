@@ -17,7 +17,7 @@
       %td= clinic.province
       %td.table-link= link_to 'Edit', edit_clinic_path(clinic)
       %td.table-link= link_to 'Distribution List', clinic_distribution_contacts_path(clinic)
-      %td.hidden= link_to 'Destroy', clinic, :method => :delete, :data => { :confirm => 'Are you sure?' }
+      %td.table-link= link_to 'Destroy', clinic, :method => :delete, :data => { :confirm => 'Are you sure?' }
 
 %br
 

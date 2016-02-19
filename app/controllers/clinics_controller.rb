@@ -54,10 +54,16 @@ class ClinicsController < ApplicationController
   # DELETE /clinics/1
   # DELETE /clinics/1.json
   def destroy
-    @clinic.destroy
+    @clinic.practice_id = -@clinic.practice_id
+
     respond_to do |format|
-      format.html { redirect_to clinics_url }
-      format.json { head :no_content }
+      if @clinic.save
+          format.html { redirect_to clinics_path, notice: 'Clinic was successfully updated.' }
+          format.json { head :no_content }
+      else
+          format.html { render action: 'index' }
+          format.json { render json: @clinic.errors, status: :unprocessable_entity }
+      end
     end
   end
 
