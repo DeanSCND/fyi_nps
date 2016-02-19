@@ -9,28 +9,30 @@ module Statistics
 
       PracticeReport.where(:run_id => run.id).delete_all
 
-      SurveyAnswer.select("DISTINCT(practice_id)").each do |result|
+      SurveyAnswer.select("DISTINCT(practice_id)").each do |result|      
         clinic = Clinic.where(:practice_id=>result.practice_id).first
-        puts("Generating stats for : " + clinic.name + " :" + clinic.practice_id.to_s)
+        if clinic != nil
+          puts("Generating stats for : " + clinic.name + " :" + clinic.practice_id.to_s)
 
-        #my_html = '<html><head></head><body><p>Hello</p></body></html>'
-        invites = Patient.where(:run_id=>run.id, :practice_id=>clinic.practice_id).count
-        @results = SurveyAnswer.where(:run_id=>run.id, :practice_id => clinic.practice_id, :status=>"Complete")
-        invites_roll = Patient.where("run_id <= ?", run.id).where("run_id >= #{fiscal_start}").where(:practice_id=>clinic.practice_id).count
-        @results_roll = SurveyAnswer.where("run_id <= ?", run.id).where("run_id >= #{fiscal_start}").where(:practice_id => clinic.practice_id, :status=>"Complete")
-        @tot_results = SurveyAnswer.where(:practice_id => clinic.practice_id, :status=>"Complete").where("run_id >= #{fiscal_start}")      
+          #my_html = '<html><head></head><body><p>Hello</p></body></html>'
+          invites = Patient.where(:run_id=>run.id, :practice_id=>clinic.practice_id).count
+          @results = SurveyAnswer.where(:run_id=>run.id, :practice_id => clinic.practice_id, :status=>"Complete")
+          invites_roll = Patient.where("run_id <= ?", run.id).where("run_id >= #{fiscal_start}").where(:practice_id=>clinic.practice_id).count
+          @results_roll = SurveyAnswer.where("run_id <= ?", run.id).where("run_id >= #{fiscal_start}").where(:practice_id => clinic.practice_id, :status=>"Complete")
+          @tot_results = SurveyAnswer.where(:practice_id => clinic.practice_id, :status=>"Complete").where("run_id >= #{fiscal_start}")      
 
-        @nps1 = (((@results.all(:conditions => "n1>8").count.to_f / @results.all(:conditions => "n1 >= 0").count.to_f) ) - ((@results.all(:conditions => "n1<7").count.to_f / @results.all(:conditions => "n1 >= 0").count.to_f))).round(4)
-        @nps2 = (((@results.all(:conditions => "n2>8").count.to_f / @results.all(:conditions => "n2 >= 0").count.to_f) ) - ((@results.all(:conditions => "n2<7").count.to_f / @results.all(:conditions => "n2 >= 0").count.to_f))).round(4)
-        @nps3 = (((@results.all(:conditions => "n3>8").count.to_f / @results.all(:conditions => "n3 >= 0").count.to_f) ) - ((@results.all(:conditions => "n3<7").count.to_f / @results.all(:conditions => "n3 >= 0").count.to_f))).round(4)
+          @nps1 = (((@results.all(:conditions => "n1>8").count.to_f / @results.all(:conditions => "n1 >= 0").count.to_f) ) - ((@results.all(:conditions => "n1<7").count.to_f / @results.all(:conditions => "n1 >= 0").count.to_f))).round(4)
+          @nps2 = (((@results.all(:conditions => "n2>8").count.to_f / @results.all(:conditions => "n2 >= 0").count.to_f) ) - ((@results.all(:conditions => "n2<7").count.to_f / @results.all(:conditions => "n2 >= 0").count.to_f))).round(4)
+          @nps3 = (((@results.all(:conditions => "n3>8").count.to_f / @results.all(:conditions => "n3 >= 0").count.to_f) ) - ((@results.all(:conditions => "n3<7").count.to_f / @results.all(:conditions => "n3 >= 0").count.to_f))).round(4)
 
-        save_practice_statistics('period', run.id, clinic.practice_id, invites.to_f, @results.count, @nps1, @nps2, @nps3 )
-        
-        @nps1 = (((@results_roll.all(:conditions => "n1>8").count.to_f / @results_roll.all(:conditions => "n1 >= 0").count.to_f) ) - ((@results_roll.all(:conditions => "n1<7").count.to_f / @results_roll.all(:conditions => "n1 >= 0").count.to_f))).round(4)
-        @nps2 = (((@results_roll.all(:conditions => "n2>8").count.to_f / @results_roll.all(:conditions => "n2 >= 0").count.to_f) ) - ((@results_roll.all(:conditions => "n2<7").count.to_f / @results_roll.all(:conditions => "n2 >= 0").count.to_f))).round(4)
-        @nps3 = (((@results_roll.all(:conditions => "n3>8").count.to_f / @results_roll.all(:conditions => "n3 >= 0").count.to_f) ) - ((@results_roll.all(:conditions => "n3<7").count.to_f / @results_roll.all(:conditions => "n3 >= 0").count.to_f))).round(4)
+          save_practice_statistics('period', run.id, clinic.practice_id, invites.to_f, @results.count, @nps1, @nps2, @nps3 )
+          
+          @nps1 = (((@results_roll.all(:conditions => "n1>8").count.to_f / @results_roll.all(:conditions => "n1 >= 0").count.to_f) ) - ((@results_roll.all(:conditions => "n1<7").count.to_f / @results_roll.all(:conditions => "n1 >= 0").count.to_f))).round(4)
+          @nps2 = (((@results_roll.all(:conditions => "n2>8").count.to_f / @results_roll.all(:conditions => "n2 >= 0").count.to_f) ) - ((@results_roll.all(:conditions => "n2<7").count.to_f / @results_roll.all(:conditions => "n2 >= 0").count.to_f))).round(4)
+          @nps3 = (((@results_roll.all(:conditions => "n3>8").count.to_f / @results_roll.all(:conditions => "n3 >= 0").count.to_f) ) - ((@results_roll.all(:conditions => "n3<7").count.to_f / @results_roll.all(:conditions => "n3 >= 0").count.to_f))).round(4)
 
-        self.save_practice_statistics('rolling', run.id, clinic.practice_id, invites_roll.to_f, @results_roll.count, @nps1, @nps2, @nps3 )
+          self.save_practice_statistics('rolling', run.id, clinic.practice_id, invites_roll.to_f, @results_roll.count, @nps1, @nps2, @nps3 )
+        end
       end
 
       PracticeGroup.all.each do |group|
