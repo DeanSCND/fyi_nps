@@ -69,9 +69,6 @@ class SurveyResultsController < ApplicationController
         @patient = Patient.where(:email => email).first
         if @patient != nil
           existing = SurveyAnswer.where(:patient_id => @patient.id).first
-          if existing != nil
-            existing.delete
-          end
           
           @result.patient_id = @patient.id
           @result.practice_id = @patient.practice_id
@@ -149,9 +146,6 @@ class SurveyResultsController < ApplicationController
         @patient = Patient.where(:email => email).first
         if @patient != nil
           existing = SurveyAnswer.where(:patient_id => @patient.id).first
-          if existing != nil
-            existing.delete
-          end
           puts r.to_json.to_s
           @result.patient_id = @patient.id
           @result.practice_id = @patient.practice_id
