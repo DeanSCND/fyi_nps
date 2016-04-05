@@ -11,9 +11,12 @@
 		%th
 
 	- @runs.each do |run|
+		- @visit_dates == nil
 		- @patient_count = Patient.count(:conditions => "run_id = #{run.id.to_s}")
 		- @result_count = SurveyAnswer.count(:conditions => "run_id = #{run.id.to_s}")
 		- @visit_dates = Patient.find_by_sql('select min("visitDate") as start, max("visitDate") as end from patients where run_id = ' + run.id.to_s).first
+		-if @visit_dates.start == nil
+			- @visit_dates = PatientArchive.find_by_sql('select min("visitDate") as start, max("visitDate") as end from patient_archives where run_id = ' + run.id.to_s).first
 		- @stat_count = PracticeReport.count(:conditions => "run_id = #{run.id.to_s}")
 		%tr
 			%td= @patient_count

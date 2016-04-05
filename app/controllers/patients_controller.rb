@@ -100,7 +100,7 @@ class PatientsController < ApplicationController
         @patient.name = row[2].to_s + " " + row[1].to_s
         @patient.email = cleanEmail.downcase
         @patient.practice_id = row[0]
-        @patient.visitDate = row[7]
+        @patient.visitDate = Date.strptime(row[7], "%d-%m-%y")
         #@patient.run = params[:patient][:run]
         @patient.run_id = run.id
         clinic = Clinic.where(:practice_id => @patient.practice_id).first
